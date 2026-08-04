@@ -108,6 +108,39 @@ function SelectLabel({
   )
 }
 
+interface SelectItemScentProps {
+  /** Normalized magnitude of this item's scent, from 0 to 1. */
+  ratio: number
+}
+
+function SelectItemScent({ ratio }: SelectItemScentProps) {
+  return (
+    <div
+      data-slot="select-item-scent"
+      className="absolute inset-x-2 bottom-1 h-0.5"
+      aria-hidden
+    >
+      <div
+        className="h-full bg-muted-foreground/25"
+        style={{ width: `${ratio * 100}%` }}
+      />
+    </div>
+  )
+}
+
+function SelectItemScentLabel({
+  className,
+  ...props
+}: React.ComponentProps<"span">) {
+  return (
+    <span
+      data-slot="select-item-scent-label"
+      className={cn("text-muted-foreground", className)}
+      {...props}
+    />
+  )
+}
+
 function SelectItem({
   className,
   children,
@@ -195,6 +228,8 @@ export {
   SelectContent,
   SelectGroup,
   SelectItem,
+  SelectItemScent,
+  SelectItemScentLabel,
   SelectLabel,
   SelectScrollDownButton,
   SelectScrollUpButton,

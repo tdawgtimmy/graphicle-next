@@ -2,8 +2,6 @@
 
 import * as React from "react"
 import { Combobox as ComboboxPrimitive } from "@base-ui/react"
-import { extent } from "d3-array"
-import { scaleSqrt } from "d3-scale"
 
 import {
   Combobox,
@@ -20,16 +18,10 @@ import {
   ComboboxValue,
   useComboboxAnchor,
 } from "@/components/ui/combobox"
-
-type ScentScaleFactory = (domain: [number, number]) => (value: number) => number
-
-const defaultScale: ScentScaleFactory = (domain) =>
-  scaleSqrt().domain(domain).range([0, 1]).clamp(true)
-
-interface ScentEntry {
-  scent: number
-  ratio: number
-}
+import {
+  useScentedItems,
+  type ScentScaleFactory,
+} from "@/components/ui/scented/use-scented-items"
 
 interface ScentedComboboxProps<
   Value,
@@ -52,7 +44,7 @@ function ScentedCombobox<Value, Multiple extends boolean | undefined = false>({
   items,
   getItemScent,
   getItemLabel = (item) => String(item),
-  scale = defaultScale,
+  scale,
   orderByScent = true,
   showScentLabel = false,
   placeholder,
@@ -63,35 +55,12 @@ function ScentedCombobox<Value, Multiple extends boolean | undefined = false>({
 }: ScentedComboboxProps<Value, Multiple>) {
   const anchorRef = useComboboxAnchor()
 
-  const { orderedItems, scentByItem } = React.useMemo(() => {
-    // Compute each item's scent exactly once, up front, instead of letting
-    // sort/extent/render each re-invoke getItemScent per item.
-    const scents = items.map(getItemScent)
-    const [min, max] = extent(scents)
-    const domain: [number, number] =
-      min === undefined || max === undefined
-        ? [0, 0]
-        : min === max
-          ? [0, max]
-          : [min, max]
-
-    const toRatio =
-      domain[0] === domain[1] ? () => (domain[1] > 0 ? 1 : 0) : scale(domain)
-
-    const scentByItem = new Map<Value, ScentEntry>()
-    items.forEach((item, i) => {
-      const scent = scents[i]
-      scentByItem.set(item, { scent, ratio: toRatio(scent) })
-    })
-
-    const orderedItems = orderByScent
-      ? [...items].sort(
-          (a, b) => scentByItem.get(b)!.scent - scentByItem.get(a)!.scent
-        )
-      : items
-
-    return { orderedItems, scentByItem }
-  }, [items, getItemScent, scale, orderByScent])
+  const { orderedItems, scentByItem } = useScentedItems(
+    items,
+    getItemScent,
+    scale,
+    orderByScent
+  )
 
   return (
     <Combobox items={orderedItems} multiple={multiple} {...props}>

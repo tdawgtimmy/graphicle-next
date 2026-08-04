@@ -135,11 +135,8 @@ function ComboboxList({ className, ...props }: ComboboxPrimitive.List.Props) {
 }
 
 interface ComboboxItemScentProps {
+  /** Normalized magnitude of this item's scent, from 0 to 1. */
   ratio: number
-}
-
-function clampScent(pct: number) {
-  return Math.min(100, Math.max(0, pct))
 }
 
 function ComboboxItemScent({ ratio }: ComboboxItemScentProps) {
@@ -150,8 +147,8 @@ function ComboboxItemScent({ ratio }: ComboboxItemScentProps) {
       aria-hidden
     >
       <div
-        className="h-full bg-muted-foreground/20"
-        style={{ width: `${clampScent(ratio * 100)}%` }}
+        className="h-full bg-muted-foreground/25"
+        style={{ width: `${ratio * 100}%` }}
       />
     </div>
   )
