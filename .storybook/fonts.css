@@ -1,0 +1,12 @@
+/*
+ * app/layout.tsx sets --font-sans / --font-mono via next/font/google, which
+ * relies on Next.js's build pipeline to self-host the font files. Storybook
+ * runs on a plain Vite build (no next/font support), so we load the same
+ * fonts from Google Fonts directly and define the variables ourselves.
+ */
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Geist+Mono:wght@100..900&display=swap");
+
+:root {
+  --font-sans: "Inter", sans-serif;
+  --font-mono: "Geist Mono", monospace;
+}

@@ -1,8 +1,16 @@
 import type { Preview } from "@storybook/nextjs-vite"
 
 import "../app/globals.css"
+import "./fonts.css"
 
 const preview: Preview = {
+  decorators: [
+    (Story) => (
+      <div className="font-sans antialiased">
+        <Story />
+      </div>
+    ),
+  ],
   parameters: {
     controls: {
       matchers: {
