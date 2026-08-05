@@ -1,0 +1,25 @@
+{
+  "name": "@graphicle/shared-types",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "libs/shared-types/src",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "dependsOn": ["@graphicle/api:export-openapi"],
+      "inputs": ["{workspaceRoot}/apps/api/openapi.json"],
+      "outputs": ["{projectRoot}/src/api.d.ts"],
+      "options": {
+        "command": "npx openapi-typescript apps/api/openapi.json -o libs/shared-types/src/api.d.ts"
+      }
+    },
+    "check-current": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "command": "git diff --exit-code -- libs/shared-types/src/api.d.ts"
+      }
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "name": "@graphicle/api",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/api/src",
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/api",
+        "command": "uv run uvicorn graphicle_api.main:app --reload --port 8000"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": ["default"],
+      "options": {
+        "cwd": "apps/api",
+        "command": "uv run pytest"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": ["default"],
+      "options": {
+        "cwd": "apps/api",
+        "parallel": false,
+        "commands": ["uv run ruff check .", "uv run ruff format --check ."]
+      }
+    },
+    "format": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/api",
+        "command": "uv run ruff format ."
+      }
+    },
+    "export-openapi": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": ["default"],
+      "outputs": ["{projectRoot}/openapi.json"],
+      "options": {
+        "cwd": "apps/api",
+        "command": "uv run python scripts/export_openapi.py openapi.json"
+      }
+    }
+  }
+}
