@@ -37,6 +37,13 @@
         "command": "uv run ruff format ."
       }
     },
+    "recompute-metrics": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/api",
+        "command": "uv run python scripts/recompute_metrics.py"
+      }
+    },
     "export-openapi": {
       "executor": "nx:run-commands",
       "cache": true,
