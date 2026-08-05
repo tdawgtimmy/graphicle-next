@@ -4,6 +4,54 @@
  */
 
 export interface paths {
+    "/api/graph/query": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Run a structured query directly
+         * @description Run a GraphQuery with no LLM involved.
+         *
+         *     This is the deterministic half of search: same compiler, same results, no
+         *     model call. Use it for saved queries, faceted filtering, and for re-running
+         *     an interpretation the user edited.
+         */
+        post: operations["run_structured_query"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Ask a question in natural language
+         * @description Interpret a question as a GraphQuery, run it, and return both.
+         *
+         *     The interpretation comes back with the results so the UI can show what the
+         *     question was understood to mean, and hand it to `/api/graph/query` to re-run
+         *     a corrected version without paying for another LLM call.
+         */
+        post: operations["search"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -26,6 +74,99 @@ export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
         /**
+         * Edge
+         * @description A directed relationship between two documents.
+         */
+        Edge: {
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /**
+             * Target Id
+             * Format: uuid
+             */
+            target_id: string;
+            /** Type */
+            type: string;
+            /**
+             * Weight
+             * @default 1
+             */
+            weight: number;
+        };
+        /**
+         * Filter
+         * @description One predicate against a node.
+         *
+         *     `field` is resolved in this order:
+         *
+         *     1. `attributes.x` / `enrichment.x` — an explicit path into that document
+         *     2. a promoted node column (`type`, `label`, `source`, ...)
+         *     3. a topology measure (`degree`, `pagerank`, ...)
+         *     4. otherwise, a key in `attributes`
+         *
+         *     So `profession` and `attributes.profession` mean the same thing today, and
+         *     keep meaning the same thing after `profession` is promoted to a real column.
+         */
+        Filter: {
+            /**
+             * Field
+             * @description Attribute name, promoted column, or topology measure.
+             */
+            field: string;
+            /** @default eq */
+            op: components["schemas"]["FilterOperator"];
+            /**
+             * Value
+             * @description Omitted for `exists`. A list is required for `in`.
+             */
+            value?: string | number | boolean | string[] | null;
+        };
+        /**
+         * FilterOperator
+         * @enum {string}
+         */
+        FilterOperator: "eq" | "neq" | "contains" | "in" | "gt" | "gte" | "lt" | "lte" | "exists";
+        /**
+         * GraphQuery
+         * @description A filter/sort over the document network.
+         *
+         *     Both worked examples land here:
+         *
+         *     - "Show me all doctors in Maine" -> two attribute filters, no sort
+         *     - "Who has the most direct connections?" -> no filters, sort by degree desc
+         *
+         *     They differ only in which fields are populated, which is exactly why this
+         *     shape is worth having.
+         */
+        GraphQuery: {
+            /** Filters */
+            filters?: components["schemas"]["Filter"][];
+            /**
+             * Limit
+             * @default 50
+             */
+            limit: number;
+            /**
+             * Node Types
+             * @description Restrict to these node types. Empty means all types.
+             */
+            node_types?: string[];
+            sort?: components["schemas"]["Sort"] | null;
+            /**
+             * Text
+             * @description Full-text search over document body. Use only for genuinely free-text intent, not for values better expressed as a filter.
+             */
+            text?: string | null;
+        };
+        /** HTTPValidationError */
+        HTTPValidationError: {
+            /** Detail */
+            detail?: components["schemas"]["ValidationError"][];
+        };
+        /**
          * Health
          * @description Liveness payload. Also Render's health check target.
          */
@@ -47,6 +188,132 @@ export interface components {
              */
             version: string;
         };
+        /**
+         * Node
+         * @description A document in the network.
+         */
+        Node: {
+            /**
+             * Attributes
+             * @description Domain fields. Kept as a document rather than fixed columns.
+             */
+            attributes?: {
+                [key: string]: unknown;
+            };
+            /** Body */
+            body?: string | null;
+            /** Enriched At */
+            enriched_at?: string | null;
+            /**
+             * Enrichment
+             * @description Externally fetched data, kept separate from source attributes.
+             */
+            enrichment?: {
+                [key: string]: unknown;
+            };
+            /** Enrichment Source */
+            enrichment_source?: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Label */
+            label: string;
+            metrics?: components["schemas"]["NodeMetrics"] | null;
+            /** Source */
+            source?: string | null;
+            /** Type */
+            type: string;
+        };
+        /**
+         * NodeMetrics
+         * @description Precomputed topology for one node, read from `node_metrics`.
+         */
+        NodeMetrics: {
+            /**
+             * Betweenness
+             * @description Null when the last recompute skipped betweenness, which is O(V*E).
+             */
+            betweenness?: number | null;
+            /** Community Id */
+            community_id?: number | null;
+            /** Computed At */
+            computed_at?: string | null;
+            /**
+             * Degree
+             * @description Total incident edges.
+             */
+            degree: number;
+            /**
+             * In Degree
+             * @default 0
+             */
+            in_degree: number;
+            /**
+             * Out Degree
+             * @default 0
+             */
+            out_degree: number;
+            /** Pagerank */
+            pagerank?: number | null;
+        };
+        /** SearchRequest */
+        SearchRequest: {
+            /**
+             * Question
+             * @description A natural-language question.
+             */
+            question: string;
+        };
+        /**
+         * SearchResponse
+         * @description Results plus the interpretation that produced them.
+         *
+         *     `interpreted` is returned so the UI can show what the question was understood
+         *     to mean — the difference between a search box and an explainable one.
+         */
+        SearchResponse: {
+            /** Edges */
+            edges?: components["schemas"]["Edge"][];
+            interpreted: components["schemas"]["GraphQuery"];
+            /** Nodes */
+            nodes?: components["schemas"]["Node"][];
+            /** Question */
+            question: string;
+            /**
+             * Truncated
+             * @default false
+             */
+            truncated: boolean;
+        };
+        /** Sort */
+        Sort: {
+            /**
+             * Direction
+             * @default desc
+             * @enum {string}
+             */
+            direction: "asc" | "desc";
+            /**
+             * Field
+             * @description Topology measure or node column to order by.
+             */
+            field: string;
+        };
+        /** ValidationError */
+        ValidationError: {
+            /** Context */
+            ctx?: Record<string, never>;
+            /** Input */
+            input?: unknown;
+            /** Location */
+            loc: (string | number)[];
+            /** Message */
+            msg: string;
+            /** Error Type */
+            type: string;
+        };
     };
     responses: never;
     parameters: never;
@@ -56,6 +323,72 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    run_structured_query: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GraphQuery"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    search: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SearchRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     health: {
         parameters: {
             query?: never;

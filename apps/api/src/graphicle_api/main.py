@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.routing import APIRoute
 
 from graphicle_api import __version__
-from graphicle_api.routers import health
+from graphicle_api.routers import health, search
 from graphicle_api.settings import get_settings
 
 
@@ -49,6 +49,7 @@ def create_app() -> FastAPI:
         )
 
     app.include_router(health.router)
+    app.include_router(search.router)
     return app
 
 
