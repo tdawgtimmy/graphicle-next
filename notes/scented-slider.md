@@ -243,6 +243,44 @@ Getting this wrong would be subtle and pervasive: labels would drift from
 their thumbs by a few pixels, worst at the extremes. Verified by measuring
 that thumb centres and value-label centres coincide to 0.000px.
 
+## Scent is visual-only, and must not crowd the semantics
+
+Everything this component adds is a *visual* aid layered onto a control whose
+accessibility already comes from Base UI: real `<input type="range">`
+elements carrying `min`/`max`/`step`, `aria-valuenow`, `aria-valuetext`
+("38 start range"), and `aria-orientation`, wrapped in a `role="group"`. The
+job here is to add nothing to that.
+
+So every decoration is `aria-hidden`:
+
+- **The histogram**, which is unreadable as text anyway.
+- **The axis and value labels**, which is the less obvious one. Each number
+  they draw is *already* exposed semantically — value labels duplicate
+  `aria-valuenow`, ticks duplicate `min`/`max`. Left exposed they read to a
+  screen reader as loose, unassociated numbers ("0 100 38 62") sitting beside
+  a slider that just announced the same values properly. That's noise that
+  grows with tick count. Hiding them isn't withholding information; the
+  information is present on a better channel.
+
+Verified: with 11 ticks and 2 value labels rendered, the entire accessibility
+tree for the widget is `group`, `slider = 38`, `slider = 62`.
+
+Keyboard support is inherited intact — Tab reaches each thumb, arrows/Home/End
+move it, and the histogram's primary layer tracks keyboard changes exactly as
+it tracks dragging. The axis reveal is bound to `focus` as well as
+`pointerenter` specifically so it isn't a pointer-only affordance.
+
+**Known gap, inherited not introduced:** the range inputs have no accessible
+name, so axe reports a critical `label` violation. This is not caused by the
+scent layer — the plain `ui/base/Slider` story reports the identical
+violation. Base UI expects a name via `aria-label` on `Slider.Thumb` or a
+visible `Slider.Label`, neither of which the design system's `Slider`
+currently exposes, so a `ScentedSlider` consumer cannot supply one today.
+Fixing it means forwarding a thumb label through `slider.tsx`.
+
+(The other axe finding, `region`, is a Storybook harness artifact — story
+content isn't inside a landmark — not a component defect.)
+
 ## One muted value across the scent family
 
 The shadow bars use the same `bg-muted-foreground/25` as `ComboboxItemScent`

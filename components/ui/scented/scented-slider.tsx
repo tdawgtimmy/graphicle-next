@@ -27,11 +27,10 @@ interface ScentedSliderAxis {
 
 type SliderValue = number | readonly number[]
 
-interface ScentedSliderProps<Item>
-  extends Omit<
-    SliderPrimitive.Root.Props<SliderValue>,
-    "value" | "defaultValue" | "onValueChange" | "render" | "children"
-  > {
+interface ScentedSliderProps<Item> extends Omit<
+  SliderPrimitive.Root.Props<SliderValue>,
+  "value" | "defaultValue" | "onValueChange" | "render" | "children"
+> {
   items: readonly Item[]
   getValue: (item: Item) => number
   value?: SliderValue
@@ -81,7 +80,8 @@ function ScentedSlider<Item>({
   )
   const currentValue = value ?? internalValue
   const values = React.useMemo(
-    () => (Array.isArray(currentValue) ? currentValue : [currentValue as number]),
+    () =>
+      Array.isArray(currentValue) ? currentValue : [currentValue as number],
     [currentValue]
   )
 
@@ -141,6 +141,7 @@ function ScentedSlider<Item>({
   const labels = (
     <div
       data-slot="scented-slider-axis"
+      aria-hidden
       className={cn(
         "relative shrink-0 text-[0.625rem] leading-none",
         vertical ? "h-full w-10" : "h-4 w-full"
