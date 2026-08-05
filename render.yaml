@@ -1,0 +1,58 @@
+# Render blueprint: the Next.js app and the FastAPI service.
+#
+# Both build with the REPO ROOT as the Docker context, because each needs files
+# outside its own directory (the workspace lockfile for web, uv.lock for api).
+#
+# Set `region` on both to the SAME region as your Supabase project — a
+# cross-region hop is paid on every query.
+
+services:
+  # Public. The only thing the browser talks to.
+  - type: web
+    name: graphicle-web
+    runtime: docker
+    repo: https://github.com/OWNER/graphicle # replace with your repo
+    branch: main
+    region: oregon
+    plan: starter
+    dockerfilePath: ./apps/web/Dockerfile
+    dockerContext: .
+    healthCheckPath: /
+    envVars:
+      # Injected as `host:port` with no scheme; the proxy route handler
+      # normalises that to http://host:port.
+      - key: API_BASE_URL
+        fromService:
+          type: pserv
+          name: graphicle-api
+          property: hostport
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
+
+  # Private: reachable only from inside the Render network. The browser reaches
+  # it through the web service's /api/py/* proxy, which is why there is no CORS
+  # configuration anywhere in this stack.
+  - type: pserv
+    name: graphicle-api
+    runtime: docker
+    repo: https://github.com/OWNER/graphicle # replace with your repo
+    branch: main
+    region: oregon
+    plan: starter
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: LLM_MODEL
+        value: anthropic:claude-opus-5
+      # Secrets: set in the Render dashboard, never committed.
+      # Use Supabase's DIRECT connection string (not the Supavisor pooler) and
+      # rewrite the scheme to postgresql+asyncpg://
+      - key: DATABASE_URL
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false

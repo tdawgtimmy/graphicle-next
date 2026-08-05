@@ -1,0 +1,16 @@
+node_modules
+**/node_modules
+.git
+.nx
+**/.next
+**/storybook-static
+**/.venv
+**/__pycache__
+**/.pytest_cache
+**/.ruff_cache
+**/*.tsbuildinfo
+**/.env*
+!**/.env*.example
+supabase/.branches
+supabase/.temp
+notes
