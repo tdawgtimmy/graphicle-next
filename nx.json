@@ -38,5 +38,6 @@
     "lint": {
       "cache": true
     }
-  }
+  },
+  "analytics": false
 }
