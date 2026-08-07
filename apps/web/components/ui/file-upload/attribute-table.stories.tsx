@@ -1,12 +1,12 @@
-import * as React from "react";
-import { expect, userEvent, waitFor } from "storybook/test";
+import * as React from "react"
+import { expect, userEvent, waitFor } from "storybook/test"
 // Replace nextjs-vite with the name of your framework
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import type { Meta, StoryObj } from "@storybook/nextjs-vite"
 
 import {
   AttributeTable,
   type AttributeRow,
-} from "@/components/ui/file-upload/attribute-table";
+} from "@/components/ui/file-upload/attribute-table"
 
 const rows: AttributeRow[] = [
   { id: "1", attribute: "customer_id", label: "Customer Id", sample: "8841" },
@@ -36,8 +36,14 @@ const rows: AttributeRow[] = [
     label: "Discount Pct",
     sample: "0.1",
   },
-  { id: "8", attribute: "notes", label: "Notes", sample: "" },
-];
+]
+
+const longAttributeRow: AttributeRow = {
+  id: "long",
+  attribute: "customer_lifetime_value_estimate_usd",
+  label: "Estimated Customer Lifetime Value in US Dollars (Rolling 12 Months)",
+  sample: "184920.55",
+}
 
 /**
  * A stateful wrapper used by these stories. `AttributeTable` itself is fully
@@ -50,15 +56,15 @@ function ControlledAttributeTable({
   editable = true,
   className,
 }: {
-  rows: AttributeRow[];
-  initialSelected?: Set<string>;
-  editable?: boolean;
-  className?: string;
+  rows: AttributeRow[]
+  initialSelected?: Set<string>
+  editable?: boolean
+  className?: string
 }) {
-  const [rowState, setRowState] = React.useState(initialRows);
+  const [rowState, setRowState] = React.useState(initialRows)
   const [selected, setSelected] = React.useState(
-    initialSelected ?? new Set<string>(),
-  );
+    initialSelected ?? new Set<string>()
+  )
 
   return (
     <AttributeTable
@@ -70,20 +76,20 @@ function ControlledAttributeTable({
         editable
           ? (id, label) =>
               setRowState((prev) =>
-                prev.map((row) => (row.id === id ? { ...row, label } : row)),
+                prev.map((row) => (row.id === id ? { ...row, label } : row))
               )
           : undefined
       }
     />
-  );
+  )
 }
 
 /**
- * A table for reviewing the attributes detected in an uploaded file:
- * selecting which ones to keep, and editing the generated label before
- * import. Built on shadcn's `Table` primitives with a sticky header — the
- * component fills whatever height its parent gives it and only the body
- * scrolls internally.
+ * A table for reviewing the attributes detected in an uploaded file. Users can
+ * select which attributes to keep, and assign human-readable labels before
+ * import. The component fills whatever height its parent gives it and only the
+ * body scrolls internally. Built on shadcn's `Table` primitives with a sticky
+ * header.
  */
 const meta: Meta<typeof AttributeTable> = {
   title: "ui/file-upload/AttributeTable",
@@ -92,22 +98,35 @@ const meta: Meta<typeof AttributeTable> = {
   parameters: {
     layout: "centered",
   },
-};
+}
 
-export default meta;
+export default meta
 
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<typeof meta>
 
 /**
- * At 456px wide — the narrowest width this component is expected to
- * handle — the fixed-width Attribute and Label columns and the flexible
- * Sample column still fit without triggering horizontal scroll.
+ * The narrowest width `AttributeTable` supports is 400px. Columns resize
+ * proportionally rather than breaking or requiring horizontal scroll.
  */
 export const Default: Story = {
   render: () => (
-    <ControlledAttributeTable rows={rows} className="h-[400px] w-[456px]" />
+    <div className="flex flex-col gap-8">
+      {[400, 600, 900].map((width) => (
+        <div key={width} className="flex flex-col gap-2">
+          <p className="text-xs text-muted-foreground">
+            {width}px {width === 400 ? "(minimum supported width)" : ""}
+          </p>
+          <div style={{ width }}>
+            <ControlledAttributeTable
+              rows={[...rows.slice(0, 2), longAttributeRow, ...rows.slice(2)]}
+              className="h-75"
+            />
+          </div>
+        </div>
+      ))}
+    </div>
   ),
-};
+}
 
 /**
  * Selecting some, but not all, rows puts the "Select all" header checkbox
@@ -119,55 +138,47 @@ export const IndeterminateHeaderCheckbox: Story = {
     <ControlledAttributeTable
       rows={rows}
       initialSelected={new Set(["1", "2"])}
-      className="h-[400px] w-[456px]"
+      className="h-100 w-114"
     />
   ),
   play: async ({ canvas }) => {
     const headerCheckbox = canvas.getByRole("checkbox", {
       name: "Select all attributes",
-    });
+    })
 
     await waitFor(() => {
-      expect(headerCheckbox).toHaveAttribute("data-indeterminate");
-    });
+      expect(headerCheckbox).toHaveAttribute("data-indeterminate")
+    })
 
-    const remainingRows = rows.slice(2);
+    const remainingRows = rows.slice(2)
     for (const row of remainingRows) {
       await userEvent.click(
-        canvas.getByRole("checkbox", { name: `Select ${row.attribute}` }),
-      );
+        canvas.getByRole("checkbox", { name: `Select ${row.attribute}` })
+      )
     }
 
     await waitFor(() => {
-      expect(headerCheckbox).toHaveAttribute("data-checked");
-      expect(headerCheckbox).not.toHaveAttribute("data-indeterminate");
-    });
+      expect(headerCheckbox).toHaveAttribute("data-checked")
+      expect(headerCheckbox).not.toHaveAttribute("data-indeterminate")
+    })
   },
-};
+}
 
 /**
- * A long, user-edited label truncates with an ellipsis inside its input
- * instead of widening the column or wrapping the row — a real risk given
- * the Label column's fixed width at narrow viewports.
+ * Long values in the Attribute and Sample columns are truncated with an
+ * ellipsis instead of widening the column or wrapping the row. A tooltip is
+ * shown immediately. The Label column behaves differently because it is an input. The existing
+ * text field affordances (focus, select, scroll) already enable users to
+ * examine any text overflow.
  */
 export const LongLabelTruncation: Story = {
   render: () => (
     <ControlledAttributeTable
-      rows={[
-        ...rows.slice(0, 2),
-        {
-          id: "long",
-          attribute: "customer_lifetime_value_estimate_usd",
-          label:
-            "Estimated Customer Lifetime Value in US Dollars (Rolling 12 Months)",
-          sample: "184920.55",
-        },
-        ...rows.slice(2, 4),
-      ]}
-      className="h-[400px] w-[456px]"
+      rows={[...rows.slice(0, 2), longAttributeRow, ...rows.slice(2, 4)]}
+      className="h-100 w-114"
     />
   ),
-};
+}
 
 /**
  * With no rows — e.g. a file that produced no detected attributes — the
@@ -175,7 +186,5 @@ export const LongLabelTruncation: Story = {
  * disabled.
  */
 export const Empty: Story = {
-  render: () => (
-    <ControlledAttributeTable rows={[]} className="h-[400px] w-[456px]" />
-  ),
-};
+  render: () => <ControlledAttributeTable rows={[]} className="h-100 w-114" />,
+}
