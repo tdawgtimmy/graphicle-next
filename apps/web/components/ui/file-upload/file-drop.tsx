@@ -1,71 +1,71 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { FileUp } from "lucide-react"
+import * as React from "react";
+import { FileUp } from "lucide-react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 type FileRejection = {
-  file: File
-  reason: "type" | "size"
-}
+  file: File;
+  reason: "type" | "size";
+};
 
 type FileDropContextValue = {
-  accept?: string[]
-  maxSize?: number
-}
+  accept?: string[];
+  maxSize?: number;
+};
 
-const FileDropContext = React.createContext<FileDropContextValue | null>(null)
+const FileDropContext = React.createContext<FileDropContextValue | null>(null);
 
 function useFileDropContext(component: string) {
-  const context = React.useContext(FileDropContext)
+  const context = React.useContext(FileDropContext);
   if (!context) {
-    throw new Error(`\`${component}\` must be used within a \`FileDrop\`.`)
+    throw new Error(`\`${component}\` must be used within a \`FileDrop\`.`);
   }
-  return context
+  return context;
 }
 
 function formatBytes(bytes: number) {
-  const units = ["B", "KB", "MB", "GB", "TB"]
-  let value = bytes
-  let unitIndex = 0
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  let value = bytes;
+  let unitIndex = 0;
   while (value >= 1024 && unitIndex < units.length - 1) {
-    value /= 1024
-    unitIndex++
+    value /= 1024;
+    unitIndex++;
   }
-  const rounded = Number.isInteger(value) ? value : Math.round(value * 10) / 10
-  return `${rounded} ${units[unitIndex]}`
+  const rounded = Number.isInteger(value) ? value : Math.round(value * 10) / 10;
+  return `${rounded} ${units[unitIndex]}`;
 }
 
 function isFileAccepted(file: File, accept?: string[]) {
-  if (!accept?.length) return true
+  if (!accept?.length) return true;
   return accept.some((pattern) => {
-    const normalized = pattern.toLowerCase().trim()
+    const normalized = pattern.toLowerCase().trim();
     if (normalized.startsWith(".")) {
-      return file.name.toLowerCase().endsWith(normalized)
+      return file.name.toLowerCase().endsWith(normalized);
     }
     if (normalized.endsWith("/*")) {
-      return file.type.startsWith(normalized.slice(0, -1))
+      return file.type.startsWith(normalized.slice(0, -1));
     }
-    return file.type === normalized
-  })
+    return file.type === normalized;
+  });
 }
 
 function validateFiles(files: File[], accept?: string[], maxSize?: number) {
-  const accepted: File[] = []
-  const rejected: FileRejection[] = []
+  const accepted: File[] = [];
+  const rejected: FileRejection[] = [];
 
   for (const file of files) {
     if (!isFileAccepted(file, accept)) {
-      rejected.push({ file, reason: "type" })
+      rejected.push({ file, reason: "type" });
     } else if (maxSize !== undefined && file.size > maxSize) {
-      rejected.push({ file, reason: "size" })
+      rejected.push({ file, reason: "size" });
     } else {
-      accepted.push(file)
+      accepted.push(file);
     }
   }
 
-  return { accepted, rejected }
+  return { accepted, rejected };
 }
 
 type FileDropProps = Omit<
@@ -73,13 +73,13 @@ type FileDropProps = Omit<
   "type" | "accept" | "size" | "onChange" | "children"
 > & {
   /** File types accepted, as extensions (".csv") or MIME types/patterns ("image/*"). Also drives the default `FileDropDescription` text. */
-  accept?: string[]
+  accept?: string[];
   /** Maximum file size in bytes. Also drives the default `FileDropDescription` text. */
-  maxSize?: number
-  children?: React.ReactNode
-  onFilesAccepted?: (files: File[]) => void
-  onFilesRejected?: (rejections: FileRejection[]) => void
-}
+  maxSize?: number;
+  children?: React.ReactNode;
+  onFilesAccepted?: (files: File[]) => void;
+  onFilesRejected?: (rejections: FileRejection[]) => void;
+};
 
 function FileDrop({
   className,
@@ -92,27 +92,27 @@ function FileDrop({
   onFilesRejected,
   ...props
 }: FileDropProps) {
-  const [isDragActive, setIsDragActive] = React.useState(false)
-  const dragCounter = React.useRef(0)
+  const [isDragActive, setIsDragActive] = React.useState(false);
+  const dragCounter = React.useRef(0);
 
   const handleFiles = React.useCallback(
     (fileList: FileList | null) => {
-      if (!fileList || fileList.length === 0) return
+      if (!fileList || fileList.length === 0) return;
       const { accepted, rejected } = validateFiles(
         Array.from(fileList),
         accept,
         maxSize
-      )
-      if (accepted.length) onFilesAccepted?.(accepted)
-      if (rejected.length) onFilesRejected?.(rejected)
+      );
+      if (accepted.length) onFilesAccepted?.(accepted);
+      if (rejected.length) onFilesRejected?.(rejected);
     },
     [accept, maxSize, onFilesAccepted, onFilesRejected]
-  )
+  );
 
   const contextValue = React.useMemo(
     () => ({ accept, maxSize }),
     [accept, maxSize]
-  )
+  );
 
   return (
     <FileDropContext.Provider value={contextValue}>
@@ -129,30 +129,30 @@ function FileDrop({
           className
         )}
         onDragEnter={(event) => {
-          if (disabled) return
-          event.preventDefault()
-          dragCounter.current += 1
-          setIsDragActive(true)
+          if (disabled) return;
+          event.preventDefault();
+          dragCounter.current += 1;
+          setIsDragActive(true);
         }}
         onDragOver={(event) => {
-          if (disabled) return
-          event.preventDefault()
+          if (disabled) return;
+          event.preventDefault();
         }}
         onDragLeave={(event) => {
-          if (disabled) return
-          event.preventDefault()
-          dragCounter.current -= 1
+          if (disabled) return;
+          event.preventDefault();
+          dragCounter.current -= 1;
           if (dragCounter.current <= 0) {
-            dragCounter.current = 0
-            setIsDragActive(false)
+            dragCounter.current = 0;
+            setIsDragActive(false);
           }
         }}
         onDrop={(event) => {
-          if (disabled) return
-          event.preventDefault()
-          dragCounter.current = 0
-          setIsDragActive(false)
-          handleFiles(event.dataTransfer.files)
+          if (disabled) return;
+          event.preventDefault();
+          dragCounter.current = 0;
+          setIsDragActive(false);
+          handleFiles(event.dataTransfer.files);
         }}
       >
         <input
@@ -162,8 +162,8 @@ function FileDrop({
           multiple={multiple}
           disabled={disabled}
           onChange={(event) => {
-            handleFiles(event.target.files)
-            event.target.value = ""
+            handleFiles(event.target.files);
+            event.target.value = "";
           }}
           {...props}
         />
@@ -182,7 +182,10 @@ function FileDrop({
             strokeDasharray="8 8"
           />
         </svg>
-        <FileUp className="size-6 shrink-0 text-foreground" aria-hidden="true" />
+        <FileUp
+          className="size-6 shrink-0 text-foreground"
+          aria-hidden="true"
+        />
         <div className="flex flex-col items-center gap-0.5 [word-break:break-word]">
           {React.Children.map(children, (child) =>
             typeof child === "string" || typeof child === "number" ? (
@@ -194,14 +197,14 @@ function FileDrop({
         </div>
       </label>
     </FileDropContext.Provider>
-  )
+  );
 }
 
 function defaultFileDropDescription(accept?: string[], maxSize?: number) {
-  const parts: string[] = []
-  if (maxSize !== undefined) parts.push(`Max ${formatBytes(maxSize)}`)
-  if (accept?.length) parts.push(accept.join(", "))
-  return parts.length ? parts.join(" | ") : null
+  const parts: string[] = [];
+  if (maxSize !== undefined) parts.push(`Max ${formatBytes(maxSize)}`);
+  if (accept?.length) parts.push(accept.join(", "));
+  return parts.length ? parts.join(" | ") : null;
 }
 
 function FileDropDescription({
@@ -209,10 +212,10 @@ function FileDropDescription({
   children,
   ...props
 }: React.ComponentProps<"p">) {
-  const { accept, maxSize } = useFileDropContext("FileDropDescription")
-  const content = children ?? defaultFileDropDescription(accept, maxSize)
+  const { accept, maxSize } = useFileDropContext("FileDropDescription");
+  const content = children ?? defaultFileDropDescription(accept, maxSize);
 
-  if (!content) return null
+  if (!content) return null;
 
   return (
     <p
@@ -222,8 +225,8 @@ function FileDropDescription({
     >
       {content}
     </p>
-  )
+  );
 }
 
-export { FileDrop, FileDropDescription }
-export type { FileRejection }
+export { FileDrop, FileDropDescription };
+export type { FileRejection };

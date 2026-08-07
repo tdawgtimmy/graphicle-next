@@ -1,12 +1,12 @@
-import { extent } from "d3-array"
-import { scaleLinear, scaleSqrt } from "d3-scale"
+import { extent } from "d3-array";
+import { scaleLinear, scaleSqrt } from "d3-scale";
 
 export type ScentScaleFactory = (
   domain: [number, number]
-) => (value: number) => number
+) => (value: number) => number;
 
 export const defaultScentScale: ScentScaleFactory = (domain) =>
-  scaleSqrt().domain(domain).range([0, 1]).clamp(true)
+  scaleSqrt().domain(domain).range([0, 1]).clamp(true);
 
 /**
  * A zero-based linear scale — the right default for *bar* scent (histograms),
@@ -28,11 +28,11 @@ export function zeroBasedScale(max?: number): ScentScaleFactory {
     scaleLinear()
       .domain([0, max ?? domain[1]])
       .range([0, 1])
-      .clamp(true)
+      .clamp(true);
 }
 
 function clampRatio(ratio: number) {
-  return Math.min(1, Math.max(0, ratio))
+  return Math.min(1, Math.max(0, ratio));
 }
 
 /**
@@ -51,18 +51,18 @@ export function computeScentRatios(
   values: readonly number[],
   scale: ScentScaleFactory = defaultScentScale
 ): (value: number) => number {
-  const [min, max] = extent(values)
+  const [min, max] = extent(values);
   const domain: [number, number] =
     min === undefined || max === undefined
       ? [0, 0]
       : min === max
         ? [0, max]
-        : [min, max]
+        : [min, max];
 
   if (domain[0] === domain[1]) {
-    const ratio = domain[1] > 0 ? 1 : 0
-    return () => ratio
+    const ratio = domain[1] > 0 ? 1 : 0;
+    return () => ratio;
   }
-  const toRatio = scale(domain)
-  return (value) => clampRatio(toRatio(value))
+  const toRatio = scale(domain);
+  return (value) => clampRatio(toRatio(value));
 }

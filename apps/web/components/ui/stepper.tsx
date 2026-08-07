@@ -1,14 +1,15 @@
-import * as React from "react"
-import { cva } from "class-variance-authority"
-import { CheckIcon } from "lucide-react"
+import * as React from "react";
+import { cva } from "class-variance-authority";
+import { CheckIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
-type StepperItemState = "default" | "active" | "complete"
-type StepperSize = "sm" | "default" | "lg"
+type StepperItemState = "default" | "active" | "complete";
+type StepperSize = "sm" | "default" | "lg";
 
-const StepperItemStateContext = React.createContext<StepperItemState>("default")
-const StepperSizeContext = React.createContext<StepperSize>("default")
+const StepperItemStateContext =
+  React.createContext<StepperItemState>("default");
+const StepperSizeContext = React.createContext<StepperSize>("default");
 
 function Stepper({
   className,
@@ -26,7 +27,7 @@ function Stepper({
         {...props}
       />
     </StepperSizeContext.Provider>
-  )
+  );
 }
 
 const stepperIndicatorVariants = cva(
@@ -49,13 +50,13 @@ const stepperIndicatorVariants = cva(
       size: "default",
     },
   }
-)
+);
 
 const stepperIndicatorCheckIconSize: Record<StepperSize, string> = {
   sm: "size-3",
   default: "size-5",
   lg: "size-6",
-}
+};
 
 function StepperIndicator({
   className,
@@ -64,13 +65,13 @@ function StepperIndicator({
   children,
   ...props
 }: React.ComponentProps<"span"> & {
-  state?: StepperItemState
-  size?: StepperSize
+  state?: StepperItemState;
+  size?: StepperSize;
 }) {
-  const itemState = React.useContext(StepperItemStateContext)
-  const contextSize = React.useContext(StepperSizeContext)
-  const resolvedState = state ?? itemState
-  const resolvedSize = size ?? contextSize
+  const itemState = React.useContext(StepperItemStateContext);
+  const contextSize = React.useContext(StepperSizeContext);
+  const resolvedState = state ?? itemState;
+  const resolvedSize = size ?? contextSize;
 
   return (
     <span
@@ -87,7 +88,7 @@ function StepperIndicator({
         children
       )}
     </span>
-  )
+  );
 }
 
 function StepperSeparator({
@@ -108,11 +109,11 @@ function StepperSeparator({
       )}
       {...props}
     />
-  )
+  );
 }
 
 function StepperTitle({ className, ...props }: React.ComponentProps<"p">) {
-  const state = React.useContext(StepperItemStateContext)
+  const state = React.useContext(StepperItemStateContext);
 
   return (
     <p
@@ -124,7 +125,7 @@ function StepperTitle({ className, ...props }: React.ComponentProps<"p">) {
       )}
       {...props}
     />
-  )
+  );
 }
 
 function StepperSubtitle({ className, ...props }: React.ComponentProps<"p">) {
@@ -134,7 +135,7 @@ function StepperSubtitle({ className, ...props }: React.ComponentProps<"p">) {
       className={cn("w-full text-sm/5 text-muted-foreground", className)}
       {...props}
     />
-  )
+  );
 }
 
 function StepperItem({
@@ -145,9 +146,9 @@ function StepperItem({
   children,
   ...props
 }: React.ComponentProps<"li"> & {
-  state?: StepperItemState
-  title: React.ReactNode
-  subtitle?: React.ReactNode
+  state?: StepperItemState;
+  title: React.ReactNode;
+  subtitle?: React.ReactNode;
 }) {
   return (
     <StepperItemStateContext.Provider value={state}>
@@ -171,7 +172,7 @@ function StepperItem({
         </div>
       </li>
     </StepperItemStateContext.Provider>
-  )
+  );
 }
 
 export {
@@ -181,4 +182,4 @@ export {
   StepperSeparator,
   StepperTitle,
   StepperSubtitle,
-}
+};

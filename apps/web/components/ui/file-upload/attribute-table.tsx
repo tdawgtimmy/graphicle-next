@@ -1,29 +1,29 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 
-import { cn } from "@/lib/utils"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Input } from "@/components/ui/input"
+import { cn } from "@/lib/utils";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import {
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip"
+} from "@/components/ui/tooltip";
 
 /**
  * Width, in px, that the checkbox column hugs — sized to its checkbox plus
  * cell padding, not part of the eighths split below.
  */
-const CHECKBOX_COLUMN_WIDTH = 32
+const CHECKBOX_COLUMN_WIDTH = 32;
 
 /**
  * Everything but the checkbox column divides into eighths: Attribute and
@@ -32,26 +32,26 @@ const CHECKBOX_COLUMN_WIDTH = 32
  * `AttributeTable` narrower than 400px, or Sample stops being legible.
  */
 function columnWidth(eighths: 2 | 3) {
-  return `calc((100% - ${CHECKBOX_COLUMN_WIDTH}px) * ${eighths} / 8)`
+  return `calc((100% - ${CHECKBOX_COLUMN_WIDTH}px) * ${eighths} / 8)`;
 }
 
 /** Renders `value` truncated with an ellipsis, and only wires up a tooltip revealing the full value once the text actually overflows. */
 function TruncatableCell({ value }: { value: string }) {
-  const ref = React.useRef<HTMLSpanElement>(null)
-  const [isTruncated, setIsTruncated] = React.useState(false)
+  const ref = React.useRef<HTMLSpanElement>(null);
+  const [isTruncated, setIsTruncated] = React.useState(false);
 
   React.useLayoutEffect(() => {
-    const element = ref.current
-    if (!element) return
+    const element = ref.current;
+    if (!element) return;
 
     const checkTruncation = () =>
-      setIsTruncated(element.scrollWidth > element.clientWidth)
+      setIsTruncated(element.scrollWidth > element.clientWidth);
 
-    checkTruncation()
-    const observer = new ResizeObserver(checkTruncation)
-    observer.observe(element)
-    return () => observer.disconnect()
-  }, [value])
+    checkTruncation();
+    const observer = new ResizeObserver(checkTruncation);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [value]);
 
   return (
     <Tooltip>
@@ -69,27 +69,27 @@ function TruncatableCell({ value }: { value: string }) {
       </TooltipTrigger>
       <TooltipContent>{value}</TooltipContent>
     </Tooltip>
-  )
+  );
 }
 
 type AttributeRow = {
-  id: string
+  id: string;
   /** Raw column name from the source file, shown in monospace. */
-  attribute: string
+  attribute: string;
   /** Human-friendly label for the attribute. Editable inline when `onLabelChange` is passed. */
-  label: string
+  label: string;
   /** Example value from the source file, shown in monospace. */
-  sample: string
-}
+  sample: string;
+};
 
 type AttributeTableProps = Omit<React.ComponentProps<"div">, "children"> & {
-  rows: AttributeRow[]
+  rows: AttributeRow[];
   /** IDs of the currently selected rows. */
-  selected: Set<string>
-  onSelectedChange: (selected: Set<string>) => void
+  selected: Set<string>;
+  onSelectedChange: (selected: Set<string>) => void;
   /** Omit to render the Label column read-only. */
-  onLabelChange?: (id: string, label: string) => void
-}
+  onLabelChange?: (id: string, label: string) => void;
+};
 
 function AttributeTable({
   className,
@@ -99,22 +99,22 @@ function AttributeTable({
   onLabelChange,
   ...props
 }: AttributeTableProps) {
-  const selectedCount = rows.filter((row) => selected.has(row.id)).length
-  const allSelected = rows.length > 0 && selectedCount === rows.length
-  const someSelected = selectedCount > 0 && !allSelected
+  const selectedCount = rows.filter((row) => selected.has(row.id)).length;
+  const allSelected = rows.length > 0 && selectedCount === rows.length;
+  const someSelected = selectedCount > 0 && !allSelected;
 
   function toggleRow(id: string, checked: boolean) {
-    const next = new Set(selected)
+    const next = new Set(selected);
     if (checked) {
-      next.add(id)
+      next.add(id);
     } else {
-      next.delete(id)
+      next.delete(id);
     }
-    onSelectedChange(next)
+    onSelectedChange(next);
   }
 
   function toggleAll(checked: boolean) {
-    onSelectedChange(checked ? new Set(rows.map((row) => row.id)) : new Set())
+    onSelectedChange(checked ? new Set(rows.map((row) => row.id)) : new Set());
   }
 
   return (
@@ -157,7 +157,7 @@ function AttributeTable({
             </TableHeader>
             <TableBody>
               {rows.map((row) => {
-                const isSelected = selected.has(row.id)
+                const isSelected = selected.has(row.id);
                 return (
                   <TableRow
                     key={row.id}
@@ -190,7 +190,7 @@ function AttributeTable({
                       <TruncatableCell value={row.sample} />
                     </TableCell>
                   </TableRow>
-                )
+                );
               })}
               {rows.length === 0 && (
                 <TableRow className="hover:bg-transparent">
@@ -207,8 +207,8 @@ function AttributeTable({
         </div>
       </div>
     </TooltipProvider>
-  )
+  );
 }
 
-export { AttributeTable }
-export type { AttributeRow, AttributeTableProps }
+export { AttributeTable };
+export type { AttributeRow, AttributeTableProps };

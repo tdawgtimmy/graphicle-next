@@ -74,7 +74,7 @@ export const ShouldOnlyOpenOneWhenSingleType: Story = {
     const accordions = await canvas.getAllByRole("button");
     const expandedCount = () =>
       accordions.filter(
-        (trigger) => trigger.getAttribute("aria-expanded") === "true",
+        (trigger) => trigger.getAttribute("aria-expanded") === "true"
       ).length;
 
     // Open the tabs one at a time
@@ -104,7 +104,7 @@ export const ShouldOpenAllWhenMultipleType: Story = {
     const accordions = await canvas.getAllByRole("button");
     const expandedCount = () =>
       accordions.filter(
-        (trigger) => trigger.getAttribute("aria-expanded") === "true",
+        (trigger) => trigger.getAttribute("aria-expanded") === "true"
       ).length;
 
     // Open all tabs one at a time

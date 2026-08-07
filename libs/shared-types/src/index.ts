@@ -8,4 +8,4 @@
  *
  * It is committed so the web app builds without a Python toolchain.
  */
-export type { components, operations, paths } from "./api.js"
+export type { components, operations, paths } from "./api.js";

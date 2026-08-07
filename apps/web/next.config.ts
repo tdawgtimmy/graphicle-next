@@ -1,4 +1,4 @@
-import type { NextConfig } from "next"
+import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // Produces a self-contained server bundle, so the runtime Docker image does
@@ -9,6 +9,6 @@ const nextConfig: NextConfig = {
   // app/api/py/[...path]/route.ts, NOT by a rewrite here. `output: "standalone"`
   // resolves this config at build time and bakes rewrite destinations into the
   // image, which would make the runtime API_BASE_URL silently ineffective.
-}
+};
 
-export default nextConfig
+export default nextConfig;

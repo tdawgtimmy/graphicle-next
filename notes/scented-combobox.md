@@ -112,10 +112,10 @@ longer carries the `group/item` class at all, since nothing needs it now.
 ### Why
 
 The core value of a scented widget (Heer et al.) is letting someone compare
-magnitude across the *whole* list at a glance, before they've committed to a
+magnitude across the _whole_ list at a glance, before they've committed to a
 choice. Color/opacity was already the channel encoding that magnitude
 information (muted = low emphasis, full = high emphasis in the mental model
-we'd built). Reusing that same channel to *also* mean "this is the selected
+we'd built). Reusing that same channel to _also_ mean "this is the selected
 item" overloads it with a second, unrelated meaning:
 
 - It's redundant: the checkmark (`ComboboxPrimitive.ItemIndicator`) already
@@ -138,7 +138,7 @@ principle as the "global and fixed" scale decision above: keep the scent
 channel about the data, and let interaction state be communicated through
 the channels already dedicated to it.
 
-Note this is distinct from the *highlight* (hover/keyboard-focus) state,
+Note this is distinct from the _highlight_ (hover/keyboard-focus) state,
 which `ComboboxItem` already recolors descendant text via a pre-existing
 `data-highlighted:**:text-accent-foreground` rule, for contrast against the
 highlighted background — that's a legibility mechanism, not a data/selection

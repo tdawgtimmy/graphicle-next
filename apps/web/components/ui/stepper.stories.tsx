@@ -61,7 +61,11 @@ export const AllComplete: Story = {
       <StepperItem state="complete" title="First Step" subtitle="Step subtitle">
         <StepperIndicator>1</StepperIndicator>
       </StepperItem>
-      <StepperItem state="complete" title="Second Step" subtitle="Step subtitle">
+      <StepperItem
+        state="complete"
+        title="Second Step"
+        subtitle="Step subtitle"
+      >
         <StepperIndicator>2</StepperIndicator>
       </StepperItem>
       <StepperItem state="complete" title="Last Step" subtitle="Step subtitle">

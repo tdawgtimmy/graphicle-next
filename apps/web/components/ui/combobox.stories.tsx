@@ -1,6 +1,6 @@
-import { expect, fn, userEvent, waitFor, within } from "storybook/test"
+import { expect, fn, userEvent, waitFor, within } from "storybook/test";
 // Replace nextjs-vite with the name of your framework
-import type { Meta, StoryObj } from "@storybook/nextjs-vite"
+import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
 import {
   Combobox,
@@ -12,11 +12,11 @@ import {
   ComboboxItem,
   ComboboxLabel,
   ComboboxList,
-} from "@/components/ui/combobox"
+} from "@/components/ui/combobox";
 
 interface ProduceGroup {
-  value: string
-  items: string[]
+  value: string;
+  items: string[];
 }
 
 const produceGroups: ProduceGroup[] = [
@@ -32,7 +32,7 @@ const produceGroups: ProduceGroup[] = [
     value: "Meat",
     items: ["Beef", "Chicken", "Lamb", "Pork"],
   },
-]
+];
 
 /**
  * Combines a text input with a list of options for the user to pick from.
@@ -80,62 +80,62 @@ const meta: Meta<typeof Combobox> = {
   parameters: {
     layout: "centered",
   },
-} satisfies Meta<typeof Combobox>
+} satisfies Meta<typeof Combobox>;
 
-export default meta
+export default meta;
 
-type Story = StoryObj<typeof meta>
+type Story = StoryObj<typeof meta>;
 
 /**
  * The default form of the combobox.
  */
-export const Default: Story = {}
+export const Default: Story = {};
 
 export const ShouldFilterOptions: Story = {
   name: "when typing, should filter options",
   tags: ["!dev", "!autodocs"],
   play: async ({ canvasElement, step }) => {
-    const canvasBody = within(canvasElement.ownerDocument.body)
-    const combobox = await canvasBody.findByRole("combobox")
+    const canvasBody = within(canvasElement.ownerDocument.body);
+    const combobox = await canvasBody.findByRole("combobox");
 
     await step("open and type a query", async () => {
-      await userEvent.click(combobox)
-      await userEvent.type(combobox, "ban")
+      await userEvent.click(combobox);
+      await userEvent.type(combobox, "ban");
       await waitFor(async () => {
-        const options = await canvasBody.findAllByRole("option")
-        expect(options).toHaveLength(1)
-        expect(options[0]).toHaveTextContent(/banana/i)
-      })
-    })
+        const options = await canvasBody.findAllByRole("option");
+        expect(options).toHaveLength(1);
+        expect(options[0]).toHaveTextContent(/banana/i);
+      });
+    });
   },
-}
+};
 
 export const ShouldSelectOption: Story = {
   name: "when an option is selected, should be checked",
   tags: ["!dev", "!autodocs"],
   play: async ({ canvasElement, step }) => {
-    const canvasBody = within(canvasElement.ownerDocument.body)
-    const combobox = await canvasBody.findByRole("combobox")
+    const canvasBody = within(canvasElement.ownerDocument.body);
+    const combobox = await canvasBody.findByRole("combobox");
 
     await step("open and select item", async () => {
-      await userEvent.click(combobox)
+      await userEvent.click(combobox);
       await userEvent.click(
         await canvasBody.findByRole("option", { name: /banana/i })
-      )
+      );
       await waitFor(() => {
-        expect(combobox).toHaveValue("Banana")
-      })
-    })
+        expect(combobox).toHaveValue("Banana");
+      });
+    });
 
     await step("verify the selected option", async () => {
-      await userEvent.click(combobox)
-      const options = await canvasBody.findAllByRole("option")
+      await userEvent.click(combobox);
+      const options = await canvasBody.findAllByRole("option");
       const selectedOption = options.find(
         (option) =>
           option.getAttribute("aria-selected") === "true" &&
           /banana/i.test(option.textContent ?? "")
-      )
-      expect(selectedOption).toBeDefined()
-    })
+      );
+      expect(selectedOption).toBeDefined();
+    });
   },
-}
+};

@@ -1,12 +1,12 @@
-import * as React from "react"
-import { expect, userEvent, waitFor } from "storybook/test"
+import * as React from "react";
+import { expect, userEvent, waitFor } from "storybook/test";
 // Replace nextjs-vite with the name of your framework
-import type { Meta, StoryObj } from "@storybook/nextjs-vite"
+import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
 import {
   AttributeTable,
   type AttributeRow,
-} from "@/components/ui/file-upload/attribute-table"
+} from "@/components/ui/file-upload/attribute-table";
 
 const rows: AttributeRow[] = [
   { id: "1", attribute: "customer_id", label: "Customer Id", sample: "8841" },
@@ -36,14 +36,14 @@ const rows: AttributeRow[] = [
     label: "Discount Pct",
     sample: "0.1",
   },
-]
+];
 
 const longAttributeRow: AttributeRow = {
   id: "long",
   attribute: "customer_lifetime_value_estimate_usd",
   label: "Estimated Customer Lifetime Value in US Dollars (Rolling 12 Months)",
   sample: "184920.55",
-}
+};
 
 /**
  * A stateful wrapper used by these stories. `AttributeTable` itself is fully
@@ -56,15 +56,15 @@ function ControlledAttributeTable({
   editable = true,
   className,
 }: {
-  rows: AttributeRow[]
-  initialSelected?: Set<string>
-  editable?: boolean
-  className?: string
+  rows: AttributeRow[];
+  initialSelected?: Set<string>;
+  editable?: boolean;
+  className?: string;
 }) {
-  const [rowState, setRowState] = React.useState(initialRows)
+  const [rowState, setRowState] = React.useState(initialRows);
   const [selected, setSelected] = React.useState(
     initialSelected ?? new Set<string>()
-  )
+  );
 
   return (
     <AttributeTable
@@ -81,7 +81,7 @@ function ControlledAttributeTable({
           : undefined
       }
     />
-  )
+  );
 }
 
 /**
@@ -98,11 +98,11 @@ const meta: Meta<typeof AttributeTable> = {
   parameters: {
     layout: "centered",
   },
-}
+};
 
-export default meta
+export default meta;
 
-type Story = StoryObj<typeof meta>
+type Story = StoryObj<typeof meta>;
 
 /**
  * A single table instance with a typical set of attributes: select rows via
@@ -112,7 +112,7 @@ export const Default: Story = {
   render: () => (
     <ControlledAttributeTable rows={rows} className="h-100 w-114" />
   ),
-}
+};
 
 /**
  * Selecting some, but not all, rows puts the "Select all" header checkbox
@@ -130,25 +130,25 @@ export const IndeterminateHeaderCheckbox: Story = {
   play: async ({ canvas }) => {
     const headerCheckbox = canvas.getByRole("checkbox", {
       name: "Select all attributes",
-    })
+    });
 
     await waitFor(() => {
-      expect(headerCheckbox).toHaveAttribute("data-indeterminate")
-    })
+      expect(headerCheckbox).toHaveAttribute("data-indeterminate");
+    });
 
-    const remainingRows = rows.slice(2)
+    const remainingRows = rows.slice(2);
     for (const row of remainingRows) {
       await userEvent.click(
         canvas.getByRole("checkbox", { name: `Select ${row.attribute}` })
-      )
+      );
     }
 
     await waitFor(() => {
-      expect(headerCheckbox).toHaveAttribute("data-checked")
-      expect(headerCheckbox).not.toHaveAttribute("data-indeterminate")
-    })
+      expect(headerCheckbox).toHaveAttribute("data-checked");
+      expect(headerCheckbox).not.toHaveAttribute("data-indeterminate");
+    });
   },
-}
+};
 
 /**
  * Long values in the Attribute and Sample columns are truncated with an
@@ -164,7 +164,7 @@ export const LongLabelTruncation: Story = {
       className="h-100 w-114"
     />
   ),
-}
+};
 
 /**
  * With no rows — e.g. a file that produced no detected attributes — the
@@ -173,7 +173,7 @@ export const LongLabelTruncation: Story = {
  */
 export const Empty: Story = {
   render: () => <ControlledAttributeTable rows={[]} className="h-100 w-114" />,
-}
+};
 
 /**
  * The narrowest width `AttributeTable` supports is 400px. Columns resize
@@ -197,4 +197,4 @@ export const ResponsiveBehavior: Story = {
       ))}
     </div>
   ),
-}
+};

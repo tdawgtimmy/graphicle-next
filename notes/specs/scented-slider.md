@@ -127,7 +127,7 @@ is always the span between the two thumbs.
 ## Resolutions (implemented 2026-08-04)
 
 1. **Hook bin-alignment & scale sync** — neither belongs in a second
-   `useScentHistogram` call, because *any* count- or rule-based `thresholds`
+   `useScentHistogram` call, because _any_ count- or rule-based `thresholds`
    re-derives boundaries from whatever data it is handed. Added
    `useLayeredScentHistogram`, which bins once over a forced domain and then
    counts, per bin, how many of that bin's own items fall in range. Both

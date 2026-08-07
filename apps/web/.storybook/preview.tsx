@@ -1,7 +1,7 @@
-import type { Preview } from "@storybook/nextjs-vite"
+import type { Preview } from "@storybook/nextjs-vite";
 
-import "../app/globals.css"
-import "./fonts.css"
+import "../app/globals.css";
+import "./fonts.css";
 
 const preview: Preview = {
   decorators: [
@@ -26,6 +26,6 @@ const preview: Preview = {
       test: "todo",
     },
   },
-}
+};
 
-export default preview
+export default preview;

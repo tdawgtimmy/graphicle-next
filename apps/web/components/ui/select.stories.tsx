@@ -84,7 +84,7 @@ export const ShouldSelectOption: Story = {
     await step("open and select item", async () => {
       await userEvent.click(select);
       await userEvent.click(
-        await canvasBody.findByRole("option", { name: /banana/i }),
+        await canvasBody.findByRole("option", { name: /banana/i })
       );
       await waitFor(() => {
         expect(select).toHaveTextContent(/banana/i);
@@ -97,7 +97,7 @@ export const ShouldSelectOption: Story = {
       const selectedOption = options.find(
         (option) =>
           option.getAttribute("aria-selected") === "true" &&
-          /banana/i.test(option.textContent ?? ""),
+          /banana/i.test(option.textContent ?? "")
       );
       expect(selectedOption).toBeDefined();
     });

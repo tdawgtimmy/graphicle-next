@@ -13,7 +13,7 @@ with Embedded Visualizations."
 
 A range/threshold slider used as a chart filter, with the distribution of the
 underlying data drawn as a histogram against the track. The user should be
-able to see *where the data actually is* before dragging — the whole point of
+able to see _where the data actually is_ before dragging — the whole point of
 a scented widget — and see how much of it their current selection keeps.
 
 ---
@@ -24,7 +24,7 @@ A scented slider is primarily a **filter**, so the user needs something to
 orient against: "38 to 62" means nothing without knowing the scale runs 0–100.
 That argues for an axis.
 
-But the axis is not the most important thing on screen — the *current value*
+But the axis is not the most important thing on screen — the _current value_
 is. So the two are separated:
 
 - **Value labels: always shown.** They answer the question the user actually
@@ -66,7 +66,7 @@ implementation returns a single bin whenever the IQR is 0 (e.g. many repeated
 values), which would flatten the histogram completely. Sturges depends only
 on `n` and so can't collapse that way — taking the larger of the two uses it
 as a floor. This is why the guard is `max()` and not `min()`: the failure
-being defended against is too *few* bins, not too many.
+being defended against is too _few_ bins, not too many.
 
 Power users pass their own `d3.bin()` operator instead. That follows the same
 principle as `scale` on the dropdown scent hooks: accept the d3 primitive
@@ -84,7 +84,7 @@ The histogram draws twice:
 2. A **primary** layer in the primary colour, drawn over it, showing the
    selected portion.
 
-The shadow layer is what keeps the scent *visible while the user interacts*.
+The shadow layer is what keeps the scent _visible while the user interacts_.
 If the histogram only drew the selection, then narrowing the range would
 progressively destroy the very information that tells the user where to drag
 next — the widget would go blind exactly when it's being used. Keeping the
@@ -103,7 +103,7 @@ against the current selection.
 ## Partial bars come from the data, not the geometry
 
 A histogram divides the domain **discretely**, but the values a thumb can
-take are **continuous**. So a thumb almost always lands *inside* a bin rather
+take are **continuous**. So a thumb almost always lands _inside_ a bin rather
 than on a boundary, and that bin is neither fully selected nor fully
 excluded.
 
@@ -116,7 +116,7 @@ sits only 20% across it; interpolating on width would wrongly show it 20%
 full.
 
 This needs no special-casing. Because both layers are binned against the same
-materialized thresholds, a boundary bin simply *contains* fewer selected
+materialized thresholds, a boundary bin simply _contains_ fewer selected
 items, and the fill follows for free.
 
 Two invariants make the layering read correctly, and both are why this lives
@@ -129,7 +129,7 @@ histogram calls:
   shift as the user dragged.
 - **Shared normalization.** Both counts run through one monotonic ratio
   function pinned to the full set's peak, so `selectedRatio <= ratio` holds
-  *by construction* rather than by convention. Normalizing the selection
+  _by construction_ rather than by convention. Normalizing the selection
   against its own max would let a primary bar out-grow its shadow, and would
   make bars resize relative to each other as the selection changed.
 
@@ -143,10 +143,10 @@ nothing.
 Dropdown scent uses a sqrt scale over `[min, max]` of the counts. The
 histogram deliberately does not, for two reasons:
 
-- **Zero-based.** Over `[min, max]`, the *smallest* bin renders at ratio 0 —
+- **Zero-based.** Over `[min, max]`, the _smallest_ bin renders at ratio 0 —
   invisible. For a bar chart the thing that should read as zero is an
   **empty** bin, not merely the quietest one.
-- **Linear.** Layered bars have to read as "this much *of* that bar." Under
+- **Linear.** Layered bars have to read as "this much _of_ that bar." Under
   sqrt, a bin that is half selected draws at ~71% of its shadow's height,
   overstating the selection. Length must stay proportional to count.
 
@@ -170,7 +170,7 @@ space, which would make it not collide, which would show it again — an
 oscillation. With `visibility` the geometry never changes, so the measurement
 that drives the decision is stable and the effect settles in one pass.
 
-Only the tick's *label* is hidden; its tick mark stays, so the axis keeps its
+Only the tick's _label_ is hidden; its tick mark stays, so the axis keeps its
 rhythm.
 
 ## The bars are part of the hit target
@@ -228,7 +228,7 @@ primitive" pattern used for `bin` and `scale`, and deliberately so:
 `d3-axis` is not a pure computation, it renders imperatively into an SVG it
 owns, and would fight React over the same DOM. `ticks` still accepts a count
 hint that is handed to `d3.scaleLinear().ticks()`, so d3 keeps choosing the
-tick *values* — only the rendering is React's.
+tick _values_ — only the rendering is React's.
 
 ## Alignment is pinned to the thumb inset
 
@@ -245,7 +245,7 @@ that thumb centres and value-label centres coincide to 0.000px.
 
 ## Scent is visual-only, and must not crowd the semantics
 
-Everything this component adds is a *visual* aid layered onto a control whose
+Everything this component adds is a _visual_ aid layered onto a control whose
 accessibility already comes from Base UI: real `<input type="range">`
 elements carrying `min`/`max`/`step`, `aria-valuenow`, `aria-valuetext`
 ("38 start range"), and `aria-orientation`, wrapped in a `role="group"`. The
@@ -255,7 +255,7 @@ So every decoration is `aria-hidden`:
 
 - **The histogram**, which is unreadable as text anyway.
 - **The axis and value labels**, which is the less obvious one. Each number
-  they draw is *already* exposed semantically — value labels duplicate
+  they draw is _already_ exposed semantically — value labels duplicate
   `aria-valuenow`, ticks duplicate `min`/`max`. Left exposed they read to a
   screen reader as loose, unassociated numbers ("0 100 38 62") sitting beside
   a slider that just announced the same values properly. That's noise that
@@ -295,7 +295,7 @@ presence, move the shared value, don't let one widget fork. A 5-point opacity
 difference is imperceptible in isolation, so divergence buys nothing and
 costs consistency.
 
-(Note that equal opacity does *not* mean equal perceived weight — a large
+(Note that equal opacity does _not_ mean equal perceived weight — a large
 block reads stronger than a hairline at the same alpha. Matching the token
 was chosen over matching perceived weight, because a single value is one
 decision to maintain across a growing family.)

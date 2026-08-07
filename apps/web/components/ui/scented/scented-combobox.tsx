@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Combobox as ComboboxPrimitive } from "@base-ui/react"
+import * as React from "react";
+import { Combobox as ComboboxPrimitive } from "@base-ui/react";
 
 import {
   Combobox,
@@ -17,27 +17,27 @@ import {
   ComboboxList,
   ComboboxValue,
   useComboboxAnchor,
-} from "@/components/ui/combobox"
+} from "@/components/ui/combobox";
 import {
   useScentedItems,
   type ScentScaleFactory,
-} from "@/components/ui/scented/use-scented-items"
+} from "@/components/ui/scented/use-scented-items";
 
 interface ScentedComboboxProps<
   Value,
   Multiple extends boolean | undefined = false,
 > extends Omit<ComboboxPrimitive.Root.Props<Value, Multiple>, "items"> {
-  items: readonly Value[]
-  getItemScent: (item: Value) => number
-  getItemLabel?: (item: Value) => React.ReactNode
-  scale?: ScentScaleFactory
+  items: readonly Value[];
+  getItemScent: (item: Value) => number;
+  getItemLabel?: (item: Value) => React.ReactNode;
+  scale?: ScentScaleFactory;
   /** Whether to order items by scent, highest first. @default true */
-  orderByScent?: boolean
+  orderByScent?: boolean;
   /** Whether to show the raw scent value next to each item's label. @default false */
-  showScentLabel?: boolean
-  placeholder?: string
-  emptyMessage?: React.ReactNode
-  className?: string
+  showScentLabel?: boolean;
+  placeholder?: string;
+  emptyMessage?: React.ReactNode;
+  className?: string;
 }
 
 function ScentedCombobox<Value, Multiple extends boolean | undefined = false>({
@@ -53,14 +53,14 @@ function ScentedCombobox<Value, Multiple extends boolean | undefined = false>({
   multiple,
   ...props
 }: ScentedComboboxProps<Value, Multiple>) {
-  const anchorRef = useComboboxAnchor()
+  const anchorRef = useComboboxAnchor();
 
   const { orderedItems, scentByItem } = useScentedItems(
     items,
     getItemScent,
     scale,
     orderByScent
-  )
+  );
 
   return (
     <Combobox items={orderedItems} multiple={multiple} {...props}>
@@ -90,7 +90,7 @@ function ScentedCombobox<Value, Multiple extends boolean | undefined = false>({
         <ComboboxEmpty>{emptyMessage}</ComboboxEmpty>
         <ComboboxList>
           {(item: Value, index: number) => {
-            const entry = scentByItem.get(item)
+            const entry = scentByItem.get(item);
             return (
               <ComboboxItem key={index} value={item}>
                 <span className="flex items-center gap-1">
@@ -103,13 +103,13 @@ function ScentedCombobox<Value, Multiple extends boolean | undefined = false>({
                 </span>
                 <ComboboxItemScent ratio={entry?.ratio ?? 0} />
               </ComboboxItem>
-            )
+            );
           }}
         </ComboboxList>
       </ComboboxContent>
     </Combobox>
-  )
+  );
 }
 
-export { ScentedCombobox }
-export type { ScentedComboboxProps, ScentScaleFactory }
+export { ScentedCombobox };
+export type { ScentedComboboxProps, ScentScaleFactory };

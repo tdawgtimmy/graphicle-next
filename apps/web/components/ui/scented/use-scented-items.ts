@@ -1,18 +1,18 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 
 import {
   computeScentRatios,
   type ScentScaleFactory,
-} from "@/components/ui/scented/scent-scale"
+} from "@/components/ui/scented/scent-scale";
 
-export { defaultScentScale } from "@/components/ui/scented/scent-scale"
-export type { ScentScaleFactory } from "@/components/ui/scented/scent-scale"
+export { defaultScentScale } from "@/components/ui/scented/scent-scale";
+export type { ScentScaleFactory } from "@/components/ui/scented/scent-scale";
 
 export interface ScentEntry {
-  scent: number
-  ratio: number
+  scent: number;
+  ratio: number;
 }
 
 /**
@@ -27,21 +27,21 @@ export function useScentedItems<Value>(
   orderByScent = true
 ) {
   return React.useMemo(() => {
-    const scents = items.map(getItemScent)
-    const toRatio = computeScentRatios(scents, scale)
+    const scents = items.map(getItemScent);
+    const toRatio = computeScentRatios(scents, scale);
 
-    const scentByItem = new Map<Value, ScentEntry>()
+    const scentByItem = new Map<Value, ScentEntry>();
     items.forEach((item, i) => {
-      const scent = scents[i]
-      scentByItem.set(item, { scent, ratio: toRatio(scent) })
-    })
+      const scent = scents[i];
+      scentByItem.set(item, { scent, ratio: toRatio(scent) });
+    });
 
     const orderedItems = orderByScent
       ? [...items].sort(
           (a, b) => scentByItem.get(b)!.scent - scentByItem.get(a)!.scent
         )
-      : items
+      : items;
 
-    return { orderedItems, scentByItem }
-  }, [items, getItemScent, scale, orderByScent])
+    return { orderedItems, scentByItem };
+  }, [items, getItemScent, scale, orderByScent]);
 }

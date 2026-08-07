@@ -1,14 +1,14 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Slider as SliderPrimitive } from "@base-ui/react/slider"
-import type { HistogramGeneratorNumber } from "d3-array"
-import { scaleLinear } from "d3-scale"
+import * as React from "react";
+import { Slider as SliderPrimitive } from "@base-ui/react/slider";
+import type { HistogramGeneratorNumber } from "d3-array";
+import { scaleLinear } from "d3-scale";
 
-import { cn } from "@/lib/utils"
-import { Slider } from "@/components/ui/slider"
-import { ScentHistogram } from "@/components/ui/scented/scent-histogram"
-import type { ScentScaleFactory } from "@/components/ui/scented/scent-scale"
+import { cn } from "@/lib/utils";
+import { Slider } from "@/components/ui/slider";
+import { ScentHistogram } from "@/components/ui/scented/scent-histogram";
+import type { ScentScaleFactory } from "@/components/ui/scented/scent-scale";
 
 /**
  * Tick generation config.
@@ -21,29 +21,29 @@ import type { ScentScaleFactory } from "@/components/ui/scented/scent-scale"
  */
 interface ScentedSliderAxis {
   /** Explicit tick values, or a count hint. Defaults to `[min, max]`. */
-  ticks?: number | readonly number[]
-  tickFormat?: (value: number) => string
+  ticks?: number | readonly number[];
+  tickFormat?: (value: number) => string;
 }
 
-type SliderValue = number | readonly number[]
+type SliderValue = number | readonly number[];
 
 interface ScentedSliderProps<Item> extends Omit<
   SliderPrimitive.Root.Props<SliderValue>,
   "value" | "defaultValue" | "onValueChange" | "render" | "children"
 > {
-  items: readonly Item[]
-  getValue: (item: Item) => number
-  value?: SliderValue
-  defaultValue?: SliderValue
+  items: readonly Item[];
+  getValue: (item: Item) => number;
+  value?: SliderValue;
+  defaultValue?: SliderValue;
   onValueChange?: (
     value: SliderValue,
     eventDetails: SliderPrimitive.Root.ChangeEventDetails
-  ) => void
-  axis?: ScentedSliderAxis
+  ) => void;
+  axis?: ScentedSliderAxis;
   /** Render the axis at rest, not only while hovered/focused. @default false */
-  alwaysShowAxis?: boolean
+  alwaysShowAxis?: boolean;
   /** Render value labels only while hovered/focused. @default false */
-  showValuesOnHover?: boolean
+  showValuesOnHover?: boolean;
   /**
    * For a single-thumb slider, treat `[min, value]` as selected instead of
    * `[value, max]`. Independent of `dir`/RTL, which controls layout
@@ -51,10 +51,10 @@ interface ScentedSliderProps<Item> extends Omit<
    * No effect in range (two-thumb) mode.
    * @default false
    */
-  invert?: boolean
-  binOperator?: HistogramGeneratorNumber<Item, number>
-  scale?: ScentScaleFactory
-  className?: string
+  invert?: boolean;
+  binOperator?: HistogramGeneratorNumber<Item, number>;
+  scale?: ScentScaleFactory;
+  className?: string;
 }
 
 function ScentedSlider<Item>({
@@ -77,55 +77,55 @@ function ScentedSlider<Item>({
 }: ScentedSliderProps<Item>) {
   const [internalValue, setInternalValue] = React.useState<SliderValue>(
     () => defaultValue ?? value ?? min
-  )
-  const currentValue = value ?? internalValue
+  );
+  const currentValue = value ?? internalValue;
   const values = React.useMemo(
     () =>
       Array.isArray(currentValue) ? currentValue : [currentValue as number],
     [currentValue]
-  )
+  );
 
-  const [active, setActive] = React.useState(false)
-  const vertical = orientation === "vertical"
+  const [active, setActive] = React.useState(false);
+  const vertical = orientation === "vertical";
 
-  const isRange = values.length > 1
+  const isRange = values.length > 1;
   // Only a single thumb has an ambiguous "selected" side to flip.
-  const inverted = invert && !isRange
+  const inverted = invert && !isRange;
 
   const selectedRange = React.useMemo<[number, number]>(() => {
     if (isRange) {
-      return [Math.min(...values), Math.max(...values)]
+      return [Math.min(...values), Math.max(...values)];
     }
-    return inverted ? [values[0], max] : [min, values[0]]
-  }, [values, isRange, inverted, min, max])
+    return inverted ? [values[0], max] : [min, values[0]];
+  }, [values, isRange, inverted, min, max]);
 
   const tickValues = React.useMemo(() => {
-    const ticks = axis?.ticks
-    if (Array.isArray(ticks)) return [...ticks]
+    const ticks = axis?.ticks;
+    if (Array.isArray(ticks)) return [...ticks];
     if (typeof ticks === "number") {
-      return scaleLinear().domain([min, max]).ticks(ticks)
+      return scaleLinear().domain([min, max]).ticks(ticks);
     }
-    return [min, max]
-  }, [axis?.ticks, min, max])
+    return [min, max];
+  }, [axis?.ticks, min, max]);
 
-  const format = axis?.tickFormat ?? ((v: number) => String(v))
+  const format = axis?.tickFormat ?? ((v: number) => String(v));
 
   const { tickRefs, valueRefs, hiddenTicks, rootRef } = useTickCollisions(
     tickValues.length,
     values.length
-  )
+  );
 
   // Mirrors base-ui's `thumbAlignment="edge"` math, which insets thumb travel
   // by half a thumb so the thumb never overflows the control. Labels and the
   // histogram use the same inset so a value lines up across all three.
   const offset = (v: number) => {
-    const pct = max === min ? 0 : (v - min) / (max - min)
-    const position = `calc(var(--scent-inset) + ${pct} * (100% - 2 * var(--scent-inset)))`
-    return vertical ? { bottom: position } : { insetInlineStart: position }
-  }
+    const pct = max === min ? 0 : (v - min) / (max - min);
+    const position = `calc(var(--scent-inset) + ${pct} * (100% - 2 * var(--scent-inset)))`;
+    return vertical ? { bottom: position } : { insetInlineStart: position };
+  };
 
-  const axisVisible = alwaysShowAxis || active
-  const valuesVisible = !showValuesOnHover || active
+  const axisVisible = alwaysShowAxis || active;
+  const valuesVisible = !showValuesOnHover || active;
 
   // The bars are the most eye-catching target, so clicking one should seek
   // like clicking the track. Base UI's press handler lives on the control and
@@ -136,7 +136,7 @@ function ScentedSlider<Item>({
   // axis, so widening the cross-axis leaves positions exact.
   const controlHitArea = vertical
     ? "**:data-[slot=slider-control]:before:absolute **:data-[slot=slider-control]:before:inset-y-0 **:data-[slot=slider-control]:before:end-full **:data-[slot=slider-control]:before:w-[calc(var(--scent-histogram)+1px)] **:data-[slot=slider-control]:before:content-['']"
-    : "**:data-[slot=slider-control]:before:absolute **:data-[slot=slider-control]:before:inset-x-0 **:data-[slot=slider-control]:before:bottom-full **:data-[slot=slider-control]:before:h-[calc(var(--scent-histogram)+1px)] **:data-[slot=slider-control]:before:content-['']"
+    : "**:data-[slot=slider-control]:before:absolute **:data-[slot=slider-control]:before:inset-x-0 **:data-[slot=slider-control]:before:bottom-full **:data-[slot=slider-control]:before:h-[calc(var(--scent-histogram)+1px)] **:data-[slot=slider-control]:before:content-['']";
 
   const labels = (
     <div
@@ -172,7 +172,7 @@ function ScentedSlider<Item>({
           />
           <span
             ref={(el) => {
-              tickRefs.current[index] = el
+              tickRefs.current[index] = el;
             }}
             className={cn(
               "block whitespace-nowrap text-muted-foreground",
@@ -198,7 +198,7 @@ function ScentedSlider<Item>({
         >
           <span
             ref={(el) => {
-              valueRefs.current[index] = el
+              valueRefs.current[index] = el;
             }}
             className={cn(
               "block font-medium whitespace-nowrap text-foreground",
@@ -210,7 +210,7 @@ function ScentedSlider<Item>({
         </div>
       ))}
     </div>
-  )
+  );
 
   return (
     <div
@@ -244,8 +244,8 @@ function ScentedSlider<Item>({
         value={value}
         defaultValue={defaultValue}
         onValueChange={(next, eventDetails) => {
-          setInternalValue(next)
-          onValueChange?.(next, eventDetails)
+          setInternalValue(next);
+          onValueChange?.(next, eventDetails);
         }}
         // The built-in indicator always fills min→value. Rather than hide it
         // and overlay our own bar (which would then have to fight the thumbs
@@ -261,7 +261,7 @@ function ScentedSlider<Item>({
       />
       {labels}
     </div>
-  )
+  );
 }
 
 /**
@@ -274,50 +274,50 @@ function ScentedSlider<Item>({
  * hiding a label could free up space, un-hide it, and oscillate.
  */
 function useTickCollisions(tickCount: number, valueCount: number) {
-  const tickRefs = React.useRef<(HTMLElement | null)[]>([])
-  const valueRefs = React.useRef<(HTMLElement | null)[]>([])
-  const rootRef = React.useRef<HTMLDivElement | null>(null)
-  const [hiddenTicks, setHiddenTicks] = React.useState<boolean[]>([])
+  const tickRefs = React.useRef<(HTMLElement | null)[]>([]);
+  const valueRefs = React.useRef<(HTMLElement | null)[]>([]);
+  const rootRef = React.useRef<HTMLDivElement | null>(null);
+  const [hiddenTicks, setHiddenTicks] = React.useState<boolean[]>([]);
 
   const measure = React.useCallback(() => {
     const valueRects = valueRefs.current
       .slice(0, valueCount)
       .filter((el): el is HTMLElement => el != null)
-      .map((el) => el.getBoundingClientRect())
+      .map((el) => el.getBoundingClientRect());
 
     const next = tickRefs.current.slice(0, tickCount).map((el) => {
-      if (!el) return false
-      const rect = el.getBoundingClientRect()
+      if (!el) return false;
+      const rect = el.getBoundingClientRect();
       return valueRects.some(
         (other) =>
           rect.left < other.right &&
           other.left < rect.right &&
           rect.top < other.bottom &&
           other.top < rect.bottom
-      )
-    })
+      );
+    });
 
     setHiddenTicks((prev) =>
       prev.length === next.length && prev.every((v, i) => v === next[i])
         ? prev
         : next
-    )
-  }, [tickCount, valueCount])
+    );
+  }, [tickCount, valueCount]);
 
   // Re-measure after every render: labels move whenever the value changes.
   // The equality check above stops this from looping.
-  React.useLayoutEffect(measure)
+  React.useLayoutEffect(measure);
 
   React.useEffect(() => {
-    const root = rootRef.current
-    if (!root || typeof ResizeObserver !== "function") return
-    const observer = new ResizeObserver(measure)
-    observer.observe(root)
-    return () => observer.disconnect()
-  }, [measure])
+    const root = rootRef.current;
+    if (!root || typeof ResizeObserver !== "function") return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(root);
+    return () => observer.disconnect();
+  }, [measure]);
 
-  return { tickRefs, valueRefs, hiddenTicks, rootRef }
+  return { tickRefs, valueRefs, hiddenTicks, rootRef };
 }
 
-export { ScentedSlider }
-export type { ScentedSliderProps, ScentedSliderAxis }
+export { ScentedSlider };
+export type { ScentedSliderProps, ScentedSliderAxis };

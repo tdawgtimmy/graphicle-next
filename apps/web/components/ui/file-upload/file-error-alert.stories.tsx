@@ -93,7 +93,7 @@ export const ShouldExpandDetailsOnClick: Story = {
       expect(trigger).toHaveAttribute("aria-expanded", "true");
     });
     expect(
-      canvas.getByText((text) => text.includes("customer_id")),
+      canvas.getByText((text) => text.includes("customer_id"))
     ).toBeVisible();
 
     await userEvent.click(trigger);

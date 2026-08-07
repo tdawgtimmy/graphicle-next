@@ -1,10 +1,10 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite"
+import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
-import { ScentedCombobox } from "@/components/ui/scented/scented-combobox"
+import { ScentedCombobox } from "@/components/ui/scented/scented-combobox";
 
 interface Produce {
-  label: string
-  count: number
+  label: string;
+  count: number;
 }
 
 const produce: Produce[] = [
@@ -16,7 +16,7 @@ const produce: Produce[] = [
   { label: "Aubergine", count: 15 },
   { label: "Broccoli", count: 210 },
   { label: "Carrot", count: 90 },
-]
+];
 
 /**
  * A combobox where each item shows an embedded "scent" bar scaled to a
@@ -36,20 +36,20 @@ const meta: Meta<typeof ScentedCombobox<Produce>> = {
   parameters: {
     layout: "centered",
   },
-} satisfies Meta<typeof ScentedCombobox<Produce>>
+} satisfies Meta<typeof ScentedCombobox<Produce>>;
 
-export default meta
+export default meta;
 
-type Story = StoryObj<typeof meta>
+type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {}
+export const Default: Story = {};
 
 export const OrderedByInsertion: Story = {
   name: "orderByScent: false (insertion order)",
   args: {
     orderByScent: false,
   },
-}
+};
 
 export const WithScentLabel: Story = {
   name: "showScentLabel: true",
@@ -57,7 +57,7 @@ export const WithScentLabel: Story = {
     showScentLabel: true,
     defaultValue: produce[1],
   },
-}
+};
 
 export const Multiple: StoryObj<Meta<typeof ScentedCombobox<Produce, true>>> = {
   args: {
@@ -65,4 +65,4 @@ export const Multiple: StoryObj<Meta<typeof ScentedCombobox<Produce, true>>> = {
     defaultValue: [],
     placeholder: "Select produce",
   },
-}
+};

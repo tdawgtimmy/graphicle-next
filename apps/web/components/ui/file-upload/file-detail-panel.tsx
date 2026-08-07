@@ -1,64 +1,64 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { FileClock, SquareMousePointer, Trash2 } from "lucide-react"
+import * as React from "react";
+import { FileClock, SquareMousePointer, Trash2 } from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   AttributeTable,
   type AttributeRow,
-} from "@/components/ui/file-upload/attribute-table"
-import { FileErrorAlert } from "@/components/ui/file-upload/file-error-alert"
+} from "@/components/ui/file-upload/attribute-table";
+import { FileErrorAlert } from "@/components/ui/file-upload/file-error-alert";
 import {
   FileSelectionItem,
   type FileSelectionItemStatus,
-} from "@/components/ui/file-upload/file-selection-item"
+} from "@/components/ui/file-upload/file-selection-item";
 
 type FileDetailPanelFile = {
-  id: string
-  filename: string
-  status: FileSelectionItemStatus
+  id: string;
+  filename: string;
+  status: FileSelectionItemStatus;
   /** Category shown ahead of the status text, e.g. "Primary" or "Related". */
-  fileType?: string
-  rowCount?: number
-}
+  fileType?: string;
+  rowCount?: number;
+};
 
 type SelectedFileDetail =
   | {
-      type: "success"
-      entityLabel: string
+      type: "success";
+      entityLabel: string;
       /** Omit to render the Entity Label field read-only. */
-      onEntityLabelChange?: (value: string) => void
-      rows: AttributeRow[]
-      selectedAttributes: Set<string>
-      onSelectedAttributesChange: (selected: Set<string>) => void
-      onAttributeLabelChange?: (id: string, label: string) => void
+      onEntityLabelChange?: (value: string) => void;
+      rows: AttributeRow[];
+      selectedAttributes: Set<string>;
+      onSelectedAttributesChange: (selected: Set<string>) => void;
+      onAttributeLabelChange?: (id: string, label: string) => void;
     }
   | {
-      type: "error"
-      message: string
-      details?: string
-      defaultDetailsOpen?: boolean
-    }
+      type: "error";
+      message: string;
+      details?: string;
+      defaultDetailsOpen?: boolean;
+    };
 
 type FileDetailPanelProps = Omit<React.ComponentProps<"div">, "children"> & {
   /** Files shown in the left-hand list, in display order. */
-  files: FileDetailPanelFile[]
+  files: FileDetailPanelFile[];
   /** ID of the file shown in the detail pane. */
-  selectedFileId?: string
+  selectedFileId?: string;
   /** Not called for files with `status: "loading"` — they aren't selectable. */
-  onSelectFile?: (id: string) => void
+  onSelectFile?: (id: string) => void;
   /**
    * Content for the detail pane, matching the selected file's status. Omit
    * while the selected file is still loading, or while nothing is selected,
    * to show the panel's empty state.
    */
-  selectedFileDetail?: SelectedFileDetail
+  selectedFileDetail?: SelectedFileDetail;
   /** Shows a "Delete" button in the detail heading for the selected file. */
-  onDeleteSelectedFile?: () => void
-}
+  onDeleteSelectedFile?: () => void;
+};
 
 function FileDetailPanel({
   className,
@@ -69,9 +69,9 @@ function FileDetailPanel({
   onDeleteSelectedFile,
   ...props
 }: FileDetailPanelProps) {
-  const selectedFile = files.find((file) => file.id === selectedFileId)
+  const selectedFile = files.find((file) => file.id === selectedFileId);
   const filesStillLoading =
-    files.length > 0 && files.every((file) => file.status === "loading")
+    files.length > 0 && files.every((file) => file.status === "loading");
 
   return (
     <div
@@ -84,7 +84,7 @@ function FileDetailPanel({
     >
       <div className="col-span-4 flex h-full flex-col items-start gap-0.5">
         {files.map((file) => {
-          const selectable = file.status !== "loading"
+          const selectable = file.status !== "loading";
           return (
             <FileSelectionItem
               key={file.id}
@@ -100,14 +100,14 @@ function FileDetailPanel({
                 selectable
                   ? (event) => {
                       if (event.key === "Enter" || event.key === " ") {
-                        event.preventDefault()
-                        onSelectFile?.(file.id)
+                        event.preventDefault();
+                        onSelectFile?.(file.id);
                       }
                     }
                   : undefined
               }
             />
-          )
+          );
         })}
       </div>
 
@@ -198,8 +198,8 @@ function FileDetailPanel({
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export { FileDetailPanel }
-export type { FileDetailPanelFile, FileDetailPanelProps, SelectedFileDetail }
+export { FileDetailPanel };
+export type { FileDetailPanelFile, FileDetailPanelProps, SelectedFileDetail };

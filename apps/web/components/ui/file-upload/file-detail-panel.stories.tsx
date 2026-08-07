@@ -69,14 +69,16 @@ const attributeRows: AttributeRow[] = [
 type DetailSeed =
   | Omit<
       Extract<SelectedFileDetail, { type: "success" }>,
-      "onEntityLabelChange" | "onSelectedAttributesChange" | "onAttributeLabelChange"
+      | "onEntityLabelChange"
+      | "onSelectedAttributesChange"
+      | "onAttributeLabelChange"
     >
   | Extract<SelectedFileDetail, { type: "error" }>;
 
 function updateSuccessDetail(
   prev: Record<string, DetailSeed>,
   id: string,
-  patch: Partial<Extract<DetailSeed, { type: "success" }>>,
+  patch: Partial<Extract<DetailSeed, { type: "success" }>>
 ): Record<string, DetailSeed> {
   const current = prev[id];
   if (current?.type !== "success") return prev;
@@ -116,11 +118,11 @@ function ControlledFileDetailPanel({
             ...seed,
             onEntityLabelChange: (value) =>
               setDetailState((prev) =>
-                updateSuccessDetail(prev, id, { entityLabel: value }),
+                updateSuccessDetail(prev, id, { entityLabel: value })
               ),
             onSelectedAttributesChange: (selected) =>
               setDetailState((prev) =>
-                updateSuccessDetail(prev, id, { selectedAttributes: selected }),
+                updateSuccessDetail(prev, id, { selectedAttributes: selected })
               ),
             onAttributeLabelChange: (rowId, label) =>
               setDetailState((prev) => {
@@ -128,7 +130,7 @@ function ControlledFileDetailPanel({
                 if (current?.type !== "success") return prev;
                 return updateSuccessDetail(prev, id, {
                   rows: current.rows.map((row) =>
-                    row.id === rowId ? { ...row, label } : row,
+                    row.id === rowId ? { ...row, label } : row
                   ),
                 });
               }),
@@ -187,7 +189,7 @@ function FrozenFileDetailPanel({
           setDetailState((prev) => ({
             ...prev,
             rows: prev.rows.map((row) =>
-              row.id === rowId ? { ...row, label } : row,
+              row.id === rowId ? { ...row, label } : row
             ),
           })),
       }}
@@ -240,8 +242,18 @@ export const PrimaryExample: Story = {
             fileType: "Primary",
             rowCount: 23000,
           },
-          { id: "2", filename: "orders.csv", status: "error", fileType: "Related" },
-          { id: "3", filename: "regions.csv", status: "loading", fileType: "Related" },
+          {
+            id: "2",
+            filename: "orders.csv",
+            status: "error",
+            fileType: "Related",
+          },
+          {
+            id: "3",
+            filename: "regions.csv",
+            status: "loading",
+            fileType: "Related",
+          },
         ]}
         initialSelectedId="1"
         details={{
@@ -282,7 +294,7 @@ export const PrimaryExample: Story = {
     await userEvent.click(ordersRow);
     await waitFor(() => {
       expect(
-        canvas.getByText("Could not parse this file.", { exact: false }),
+        canvas.getByText("Could not parse this file.", { exact: false })
       ).toBeVisible();
     });
 
@@ -290,7 +302,9 @@ export const PrimaryExample: Story = {
       name: /customers\.csv/i,
     });
     await userEvent.click(customersRow);
-    await waitFor(() => expect(canvas.getByLabelText("Entity Label")).toBeVisible());
+    await waitFor(() =>
+      expect(canvas.getByLabelText("Entity Label")).toBeVisible()
+    );
   },
 };
 
@@ -318,8 +332,18 @@ export const ValidFile: Story = {
           fileType: "Primary",
           rowCount: 23000,
         },
-        { id: "2", filename: "orders.csv", status: "error", fileType: "Related" },
-        { id: "3", filename: "regions.csv", status: "loading", fileType: "Related" },
+        {
+          id: "2",
+          filename: "orders.csv",
+          status: "error",
+          fileType: "Related",
+        },
+        {
+          id: "3",
+          filename: "regions.csv",
+          status: "loading",
+          fileType: "Related",
+        },
       ]}
       selectedFileId="1"
       detail={{
@@ -360,9 +384,24 @@ export const NoLoadedFile: Story = {
   ],
   args: {
     files: [
-      { id: "1", filename: "customers.csv", status: "loading", fileType: "Primary" },
-      { id: "2", filename: "orders.csv", status: "loading", fileType: "Related" },
-      { id: "3", filename: "regions.csv", status: "loading", fileType: "Related" },
+      {
+        id: "1",
+        filename: "customers.csv",
+        status: "loading",
+        fileType: "Primary",
+      },
+      {
+        id: "2",
+        filename: "orders.csv",
+        status: "loading",
+        fileType: "Related",
+      },
+      {
+        id: "3",
+        filename: "regions.csv",
+        status: "loading",
+        fileType: "Related",
+      },
     ],
   },
 };
@@ -389,8 +428,18 @@ export const NoSelection: Story = {
         fileType: "Primary",
         rowCount: 23000,
       },
-      { id: "2", filename: "orders.csv", status: "loading", fileType: "Related" },
-      { id: "3", filename: "regions.csv", status: "loading", fileType: "Related" },
+      {
+        id: "2",
+        filename: "orders.csv",
+        status: "loading",
+        fileType: "Related",
+      },
+      {
+        id: "3",
+        filename: "regions.csv",
+        status: "loading",
+        fileType: "Related",
+      },
     ],
   },
 };
@@ -448,7 +497,7 @@ export const ParseErrorWithExpandableDetails: Story = {
       expect(trigger).toHaveAttribute("aria-expanded", "true");
     });
     expect(
-      canvas.getByText((text) => text.includes("customer_id")),
+      canvas.getByText((text) => text.includes("customer_id"))
     ).toBeVisible();
   },
 };

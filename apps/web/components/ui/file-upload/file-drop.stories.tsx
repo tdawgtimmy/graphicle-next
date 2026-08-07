@@ -22,7 +22,7 @@ const meta: Meta<typeof FileDrop> = {
     accept: {
       control: "object",
       description:
-        "File extensions or MIME types/patterns accepted, e.g. [\".csv\", \".xlsx\"]. Drives the default FileDropDescription text and client-side validation.",
+        'File extensions or MIME types/patterns accepted, e.g. [".csv", ".xlsx"]. Drives the default FileDropDescription text and client-side validation.',
     },
     maxSize: {
       control: "number",

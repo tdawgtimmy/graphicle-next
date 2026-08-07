@@ -1,35 +1,35 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   bin,
   thresholdFreedmanDiaconis,
   thresholdSturges,
   type HistogramGeneratorNumber,
-} from "d3-array"
+} from "d3-array";
 
 import {
   computeScentRatios,
   zeroBasedScale,
   type ScentScaleFactory,
-} from "@/components/ui/scented/scent-scale"
+} from "@/components/ui/scented/scent-scale";
 
 export interface ScentBin {
-  x0: number
-  x1: number
-  count: number
-  ratio: number
+  x0: number;
+  x1: number;
+  count: number;
+  ratio: number;
 }
 
 export interface LayeredScentBin extends ScentBin {
   /** Count of items in this bin that fall inside the selected range. */
-  selectedCount: number
+  selectedCount: number;
   /**
    * `selectedCount` normalized against the *same* denominator as `ratio`, so
    * `selectedRatio <= ratio` always holds and the selected portion reads as
    * a fraction of the whole bin rather than its own independent bar.
    */
-  selectedRatio: number
+  selectedRatio: number;
 }
 
 /**
@@ -54,7 +54,7 @@ export function thresholdAuto(
   return Math.max(
     thresholdSturges(values),
     thresholdFreedmanDiaconis(values, min, max)
-  )
+  );
 }
 
 /**
@@ -80,23 +80,23 @@ export function useScentHistogram<Item>(
   scale?: ScentScaleFactory
 ): ScentBin[] {
   return React.useMemo(() => {
-    if (items.length === 0) return []
+    if (items.length === 0) return [];
 
     const operator = (
       binOperator ?? bin<Item, number>().thresholds(thresholdAuto)
-    ).value(getValue)
+    ).value(getValue);
 
-    const bins = operator(items)
-    const counts = bins.map((b) => b.length)
-    const toRatio = computeScentRatios(counts, scale ?? zeroBasedScale())
+    const bins = operator(items);
+    const counts = bins.map((b) => b.length);
+    const toRatio = computeScentRatios(counts, scale ?? zeroBasedScale());
 
     return bins.map((b) => ({
       x0: b.x0 ?? 0,
       x1: b.x1 ?? 0,
       count: b.length,
       ratio: toRatio(b.length),
-    }))
-  }, [items, getValue, binOperator, scale])
+    }));
+  }, [items, getValue, binOperator, scale]);
 }
 
 /**
@@ -130,12 +130,12 @@ export function useLayeredScentHistogram<Item>(
   binOperator?: HistogramGeneratorNumber<Item, number>,
   scale?: ScentScaleFactory
 ): LayeredScentBin[] {
-  const [domainMin, domainMax] = domain
-  const rangeMin = range?.[0]
-  const rangeMax = range?.[1]
+  const [domainMin, domainMax] = domain;
+  const rangeMin = range?.[0];
+  const rangeMax = range?.[1];
 
   return React.useMemo(() => {
-    if (items.length === 0) return []
+    if (items.length === 0) return [];
 
     // The domain is forced (rather than left to d3's default data extent) so
     // bins span the full track, not just the range the data happens to cover.
@@ -143,25 +143,25 @@ export function useLayeredScentHistogram<Item>(
       binOperator ?? bin<Item, number>().thresholds(thresholdAuto)
     )
       .value(getValue)
-      .domain([domainMin, domainMax])
+      .domain([domainMin, domainMax]);
 
-    const bins = operator(items)
-    const counts = bins.map((b) => b.length)
+    const bins = operator(items);
+    const counts = bins.map((b) => b.length);
     // Zero-based, so an empty bin — not merely the smallest one — reads as
     // zero. Both layers then run through this one function, which is what
     // makes `selectedRatio <= ratio` hold: it's monotonic, and
     // `selectedCount <= count` by construction.
-    const baseScale = scale ?? zeroBasedScale()
-    const toRatio = computeScentRatios(counts, (d) => baseScale([0, d[1]]))
+    const baseScale = scale ?? zeroBasedScale();
+    const toRatio = computeScentRatios(counts, (d) => baseScale([0, d[1]]));
 
     return bins.map((b) => {
       const selectedCount =
         rangeMin === undefined || rangeMax === undefined
           ? 0
           : b.reduce((n, item) => {
-              const v = getValue(item)
-              return v >= rangeMin && v <= rangeMax ? n + 1 : n
-            }, 0)
+              const v = getValue(item);
+              return v >= rangeMin && v <= rangeMax ? n + 1 : n;
+            }, 0);
 
       return {
         x0: b.x0 ?? 0,
@@ -170,8 +170,8 @@ export function useLayeredScentHistogram<Item>(
         ratio: toRatio(b.length),
         selectedCount,
         selectedRatio: toRatio(selectedCount),
-      }
-    })
+      };
+    });
   }, [
     items,
     getValue,
@@ -181,5 +181,5 @@ export function useLayeredScentHistogram<Item>(
     rangeMax,
     binOperator,
     scale,
-  ])
+  ]);
 }

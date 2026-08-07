@@ -1,46 +1,46 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { FileCheck, FileWarning, LoaderCircle, Trash2, X } from "lucide-react"
+import * as React from "react";
+import { FileCheck, FileWarning, LoaderCircle, Trash2, X } from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Item, ItemContent, ItemMedia } from "@/components/ui/item"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Item, ItemContent, ItemMedia } from "@/components/ui/item";
 
-type FileSelectionItemStatus = "loading" | "success" | "error"
+type FileSelectionItemStatus = "loading" | "success" | "error";
 
 type FileSelectionItemProps = Omit<React.ComponentProps<"div">, "children"> & {
   /** Name of the file. Truncated with an ellipsis if it doesn't fit. */
-  filename: string
-  status: FileSelectionItemStatus
+  filename: string;
+  status: FileSelectionItemStatus;
   /** Category shown ahead of the status text, e.g. "Primary" or "Related". */
-  fileType?: string
+  fileType?: string;
   /** Row count shown once the file has finished loading successfully. */
-  rowCount?: number
+  rowCount?: number;
   /**
    * Marks the item as the persistently active one in a list (adds the
    * active indicator bar). Has no effect while `status` is "loading".
    */
-  selected?: boolean
+  selected?: boolean;
   /** Shows a cancel button while `status` is "loading". */
-  onCancel?: () => void
+  onCancel?: () => void;
   /** Shows a delete button once `status` is "success" or "error". */
-  onDelete?: () => void
+  onDelete?: () => void;
   /**
    * Called when the item itself is activated — click, or Enter while it has
    * focus. Never called for `status` "loading", and never called by
    * clicking the cancel/delete button. Enables the row's own cursor and
    * keyboard handling; omit it to render a non-selectable row.
    */
-  onSelect?: () => void
-}
+  onSelect?: () => void;
+};
 
 function formatRowCount(count: number) {
-  if (count < 1000) return `${count}`
+  if (count < 1000) return `${count}`;
   return Intl.NumberFormat("en", {
     notation: "compact",
     maximumFractionDigits: 0,
-  }).format(count)
+  }).format(count);
 }
 
 function FileSelectionItem({
@@ -55,11 +55,11 @@ function FileSelectionItem({
   onSelect,
   ...props
 }: FileSelectionItemProps) {
-  const isInteractive = status !== "loading"
-  const isSelected = selected && isInteractive
-  const hasSelectHandler = Boolean(onSelect)
+  const isInteractive = status !== "loading";
+  const isSelected = selected && isInteractive;
+  const hasSelectHandler = Boolean(onSelect);
   // Already-selected items have nothing left for a click/Enter to do.
-  const canSelect = isInteractive && hasSelectHandler && !isSelected
+  const canSelect = isInteractive && hasSelectHandler && !isSelected;
 
   const action =
     status === "loading"
@@ -68,7 +68,7 @@ function FileSelectionItem({
         : undefined
       : onDelete
         ? { label: `Delete ${filename}`, icon: Trash2, onClick: onDelete }
-        : undefined
+        : undefined;
 
   return (
     <Item
@@ -86,18 +86,18 @@ function FileSelectionItem({
           ? (event) => {
               // Ignore keydowns bubbling up from the nested delete/cancel
               // button — only a key on the item itself selects it.
-              if (event.target !== event.currentTarget) return
+              if (event.target !== event.currentTarget) return;
               if (event.key === "Enter") {
-                event.preventDefault()
-                onSelect?.()
+                event.preventDefault();
+                onSelect?.();
               }
             }
           : undefined
       }
       className={cn(
-        "group/file-item relative gap-4 rounded-lg border-transparent px-4 py-2 outline-none transition-colors",
+        "group/file-item relative gap-4 rounded-lg border-transparent px-4 py-2 transition-colors outline-none",
         isInteractive &&
-          "hover:bg-secondary focus-visible:border-transparent focus-within:bg-secondary focus-within:ring-2 focus-within:ring-ring/30",
+          "focus-within:bg-secondary focus-within:ring-2 focus-within:ring-ring/30 hover:bg-secondary focus-visible:border-transparent",
         hasSelectHandler &&
           (!isInteractive
             ? "cursor-not-allowed"
@@ -171,13 +171,13 @@ function FileSelectionItem({
             destructive
             onClick={(event) => {
               // Don't let this bubble into the item's own onClick/onSelect.
-              event.stopPropagation()
-              action.onClick()
+              event.stopPropagation();
+              action.onClick();
             }}
             aria-label={action.label}
             className={cn(
               "rounded-sm opacity-0 shadow-sm transition-opacity",
-              "group-hover/file-item:opacity-100 group-focus-within/file-item:opacity-100"
+              "group-focus-within/file-item:opacity-100 group-hover/file-item:opacity-100"
             )}
           >
             <action.icon className="size-4" aria-hidden="true" />
@@ -185,8 +185,8 @@ function FileSelectionItem({
         </span>
       )}
     </Item>
-  )
+  );
 }
 
-export { FileSelectionItem }
-export type { FileSelectionItemProps, FileSelectionItemStatus }
+export { FileSelectionItem };
+export type { FileSelectionItemProps, FileSelectionItemStatus };

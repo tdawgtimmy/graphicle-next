@@ -1,25 +1,25 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import type { HistogramGeneratorNumber } from "d3-array"
+import * as React from "react";
+import type { HistogramGeneratorNumber } from "d3-array";
 
-import { cn } from "@/lib/utils"
-import type { ScentScaleFactory } from "@/components/ui/scented/scent-scale"
+import { cn } from "@/lib/utils";
+import type { ScentScaleFactory } from "@/components/ui/scented/scent-scale";
 import {
   useLayeredScentHistogram,
   type LayeredScentBin,
-} from "@/components/ui/scented/use-scent-histogram"
+} from "@/components/ui/scented/use-scent-histogram";
 
 interface ScentHistogramProps<Item> extends React.ComponentProps<"div"> {
-  items: readonly Item[]
-  getValue: (item: Item) => number
+  items: readonly Item[];
+  getValue: (item: Item) => number;
   /** Value range the bars are laid out across — normally the slider's `[min, max]`. */
-  domain: readonly [number, number]
+  domain: readonly [number, number];
   /** Selected span. Bins outside it render shadow-only. */
-  range?: readonly [number, number] | null
-  orientation?: "horizontal" | "vertical"
-  binOperator?: HistogramGeneratorNumber<Item, number>
-  scale?: ScentScaleFactory
+  range?: readonly [number, number] | null;
+  orientation?: "horizontal" | "vertical";
+  binOperator?: HistogramGeneratorNumber<Item, number>;
+  scale?: ScentScaleFactory;
 }
 
 function ScentHistogram<Item>({
@@ -40,8 +40,8 @@ function ScentHistogram<Item>({
     range,
     binOperator,
     scale
-  )
-  const vertical = orientation === "vertical"
+  );
+  const vertical = orientation === "vertical";
 
   return (
     <div
@@ -51,9 +51,9 @@ function ScentHistogram<Item>({
       className={cn(
         "pointer-events-none flex gap-px",
         vertical
-          // Lowest bin at the bottom, bars growing away from the track (which
-          // sits to the right in vertical mode).
-          ? "h-full w-(--scent-histogram,2.25rem) flex-col-reverse py-(--scent-inset)"
+          ? // Lowest bin at the bottom, bars growing away from the track (which
+            // sits to the right in vertical mode).
+            "h-full w-(--scent-histogram,2.25rem) flex-col-reverse py-(--scent-inset)"
           : "h-(--scent-histogram,2.25rem) w-full items-end px-(--scent-inset)",
         className
       )}
@@ -63,18 +63,18 @@ function ScentHistogram<Item>({
         <ScentHistogramBar key={index} bin={bin} vertical={vertical} />
       ))}
     </div>
-  )
+  );
 }
 
 function ScentHistogramBar({
   bin,
   vertical,
 }: {
-  bin: LayeredScentBin
-  vertical: boolean
+  bin: LayeredScentBin;
+  vertical: boolean;
 }) {
   const size = (ratio: number) =>
-    vertical ? { width: `${ratio * 100}%` } : { height: `${ratio * 100}%` }
+    vertical ? { width: `${ratio * 100}%` } : { height: `${ratio * 100}%` };
 
   return (
     <div className={cn("relative flex-1", vertical ? "w-full" : "h-full")}>
@@ -96,8 +96,8 @@ function ScentHistogramBar({
         style={size(bin.selectedRatio)}
       />
     </div>
-  )
+  );
 }
 
-export { ScentHistogram }
-export type { ScentHistogramProps }
+export { ScentHistogram };
+export type { ScentHistogramProps };
