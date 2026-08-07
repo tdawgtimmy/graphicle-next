@@ -105,26 +105,12 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 /**
- * The narrowest width `AttributeTable` supports is 400px. Columns resize
- * proportionally rather than breaking or requiring horizontal scroll.
+ * A single table instance with a typical set of attributes: select rows via
+ * checkbox and edit their generated labels inline.
  */
 export const Default: Story = {
   render: () => (
-    <div className="flex flex-col gap-8">
-      {[400, 600, 900].map((width) => (
-        <div key={width} className="flex flex-col gap-2">
-          <p className="text-xs text-muted-foreground">
-            {width}px {width === 400 ? "(minimum supported width)" : ""}
-          </p>
-          <div style={{ width }}>
-            <ControlledAttributeTable
-              rows={[...rows.slice(0, 2), longAttributeRow, ...rows.slice(2)]}
-              className="h-75"
-            />
-          </div>
-        </div>
-      ))}
-    </div>
+    <ControlledAttributeTable rows={rows} className="h-100 w-114" />
   ),
 }
 
@@ -187,4 +173,28 @@ export const LongLabelTruncation: Story = {
  */
 export const Empty: Story = {
   render: () => <ControlledAttributeTable rows={[]} className="h-100 w-114" />,
+}
+
+/**
+ * The narrowest width `AttributeTable` supports is 400px. Columns resize
+ * proportionally rather than breaking or requiring horizontal scroll.
+ */
+export const ResponsiveBehavior: Story = {
+  render: () => (
+    <div className="flex flex-col gap-8">
+      {[400, 600, 900].map((width) => (
+        <div key={width} className="flex flex-col gap-2">
+          <p className="text-xs text-muted-foreground">
+            {width}px {width === 400 ? "(minimum supported width)" : ""}
+          </p>
+          <div style={{ width }}>
+            <ControlledAttributeTable
+              rows={[...rows.slice(0, 2), longAttributeRow, ...rows.slice(2)]}
+              className="h-75"
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+  ),
 }
