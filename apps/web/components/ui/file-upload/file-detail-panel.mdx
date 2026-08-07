@@ -1,0 +1,82 @@
+import { Controls, Meta, Primary, Stories } from "@storybook/addon-docs/blocks";
+
+import * as FileDetailPanelStories from "./file-detail-panel.stories";
+
+<Meta of={FileDetailPanelStories} />
+
+# FileDetailPanel
+
+Combines `FileSelectionItem`, `FileErrorAlert`, and a consumer-supplied
+detail view into a component that can be used for file review: a file list on
+the left, and a detail pane on the right. Loading, error, and no-selection
+states are handled entirely by the panel from each file's `status`. If a file
+has been successfully loaded, the panel renders its `children` below a heading
+with the filename and delete button.
+
+<Primary />
+
+## Composing the success state
+
+`children` is only rendered while the selected file has `status: "success"`.
+This allows the panel to be customized based on the call site/by the owning
+component. For example,
+
+```tsx
+function ImportStep() {
+  const [files, setFiles] = React.useState<UploadFile[]>(/* ... */);
+  const [selectedId, setSelectedId] = React.useState<string>();
+  const selected = files.find((f) => f.id === selectedId);
+
+  return (
+    <FileDetailPanel
+      files={files}
+      selectedFileId={selectedId}
+      onSelectFile={setSelectedId}
+      onCancelFile={cancelUpload}
+      onDeleteFile={removeFile}
+    >
+      {selected?.status === "success" && (
+        <AttributeTableDetail key={selected.id} file={selected} />
+      )}
+    </FileDetailPanel>
+  );
+}
+```
+
+Four things to know about composing:
+
+- **Key `children` by the file's ID.** Selecting a different file re-renders
+  the same slot position with new content, not a fresh mount. Any local
+  state in your detail view (an uncontrolled input, an open accordion) will
+  otherwise leak from the previously selected file into the newly selected
+  one. `key={selected.id}` forces a remount on every selection change.
+- **Expect the content to resize automatically — but `w-full`/`h-full` may not
+  be necessary.** The slot is a CSS Grid cell with
+  `align-items`/`justify-items: stretch` (the grid default), so a single child
+  fills it on both axes automatically. Just make sure your content is
+  comfortable being that flexible: it needs to render sensibly anywhere from
+  640px to whatever a wide viewport gives it.
+- **You get the filename and delete button for free.** The slot for content
+  is positioned below the heading containing the filename and delete button.
+  There is a gap of `1.5rem`.
+- **Guarding for success is good practice.** Add a
+  `selected?.status === "success"` check before rendering the children. While
+  the panel is also doing this check, writing the guard means that the parent
+  won't build a node it won't use. More importantly, TypeScript narrows
+  `selected` for you, which you need anyway to pull that file's data.
+
+## `UploadFile` and immutability
+
+`files` uses a shared type, `UploadFile[]`, which is also intended for the file
+list your app maintains elsewhere (a store, an upload hook). This encourages you
+to ensure the same objects can flow into both `FileDetailPanel` and any other
+file-aware UI.
+
+Treat each `UploadFile` as immutable. A status transition (`"loading"` →
+`"success"`) must produce a **new** object, not a mutation of the existing one.
+Components already holding the old reference (e.g. a memoized row) won't
+otherwise know to re-render.
+
+<Controls />
+
+<Stories includePrimary={false} />

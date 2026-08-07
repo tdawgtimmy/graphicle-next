@@ -51,7 +51,10 @@ function FileErrorAlert({
   ...props
 }: FileErrorAlertProps) {
   return (
-    <Alert className={cn("flex flex-col gap-4 p-3", className)} {...props}>
+    <Alert
+      className={cn("flex flex-col gap-4 border-0 p-3", className)}
+      {...props}
+    >
       <div className="flex items-start gap-3">
         <CircleAlert
           aria-hidden="true"

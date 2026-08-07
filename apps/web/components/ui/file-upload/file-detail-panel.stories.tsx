@@ -1,42 +1,14 @@
 import * as React from "react";
-import {
-  Controls,
-  Description,
-  Primary,
-  Stories,
-  Subtitle,
-  Title,
-} from "@storybook/addon-docs/blocks";
 import { expect, fn, userEvent, waitFor } from "storybook/test";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
-import type { AttributeRow } from "@/components/ui/file-upload/attribute-table";
 import {
-  FileDetailPanel,
-  type FileDetailPanelFile,
-  type SelectedFileDetail,
-} from "@/components/ui/file-upload/file-detail-panel";
-
-/**
- * Storybook's default autodocs page re-lists the primary story (the one
- * shown in the canvas at top) a second time in its "Stories" section —
- * `includePrimary` defaults to `true`. That's normally harmless, but here
- * the primary is `PrimaryExample`, a story deliberately hidden from the
- * sidebar (`tags: ["!dev"]`); without this override it would leak back into
- * the page as its own duplicate heading. `includePrimary={false}` skips it.
- */
-function DocsPage() {
-  return (
-    <>
-      <Title />
-      <Subtitle />
-      <Description />
-      <Primary />
-      <Controls />
-      <Stories includePrimary={false} />
-    </>
-  );
-}
+  AttributeTable,
+  type AttributeRow,
+} from "@/components/ui/file-upload/attribute-table";
+import { FileDetailPanel } from "@/components/ui/file-upload/file-detail-panel";
+import type { UploadFile } from "@/components/ui/file-upload/types";
+import { Input } from "@/components/ui/input";
 
 /**
  * Disables click, hover, and focus-by-click on `FileDetailPanel`'s file list
@@ -66,24 +38,57 @@ const attributeRows: AttributeRow[] = [
   { id: "5", attribute: "quantity", label: "Quantity", sample: "12" },
 ];
 
-type DetailSeed =
-  | Omit<
-      Extract<SelectedFileDetail, { type: "success" }>,
-      | "onEntityLabelChange"
-      | "onSelectedAttributesChange"
-      | "onAttributeLabelChange"
-    >
-  | Extract<SelectedFileDetail, { type: "error" }>;
-
-function updateSuccessDetail(
-  prev: Record<string, DetailSeed>,
-  id: string,
-  patch: Partial<Extract<DetailSeed, { type: "success" }>>
-): Record<string, DetailSeed> {
-  const current = prev[id];
-  if (current?.type !== "success") return prev;
-  return { ...prev, [id]: { ...current, ...patch } };
+/**
+ * An example consumer of `FileDetailPanel`'s `children` slot: an editable
+ * entity label above the detected attributes. A real consumer composes
+ * whatever detail UI fits its own use case here — `FileDetailPanel` itself
+ * has no knowledge of either piece.
+ */
+function AttributeTableDetail({
+  entityLabel,
+  onEntityLabelChange,
+  rows,
+  selectedAttributes,
+  onSelectedAttributesChange,
+  onAttributeLabelChange,
+}: {
+  entityLabel: string;
+  onEntityLabelChange?: (value: string) => void;
+  rows: AttributeRow[];
+  selectedAttributes: Set<string>;
+  onSelectedAttributesChange: (selected: Set<string>) => void;
+  onAttributeLabelChange?: (id: string, label: string) => void;
+}) {
+  return (
+    <div className="flex min-h-0 flex-col gap-6">
+      <div className="flex w-full items-center gap-1">
+        <span className="w-30 shrink-0 text-sm/5 font-medium text-foreground">
+          Entity Label
+        </span>
+        <Input
+          value={entityLabel}
+          onChange={(event) => onEntityLabelChange?.(event.target.value)}
+          readOnly={!onEntityLabelChange}
+          className="h-8 flex-1"
+          aria-label="Entity Label"
+        />
+      </div>
+      <AttributeTable
+        className="min-h-0 w-full flex-1"
+        rows={rows}
+        selected={selectedAttributes}
+        onSelectedChange={onSelectedAttributesChange}
+        onLabelChange={onAttributeLabelChange}
+      />
+    </div>
+  );
 }
+
+type AttributeDetailSeed = {
+  entityLabel: string;
+  rows: AttributeRow[];
+  selectedAttributes: Set<string>;
+};
 
 /**
  * A stateful wrapper used by these stories. `FileDetailPanel` itself is
@@ -93,49 +98,61 @@ function updateSuccessDetail(
 function ControlledFileDetailPanel({
   files,
   initialSelectedId,
-  details,
+  attributeDetails,
   onSelectFile,
-  onDeleteSelectedFile,
+  onCancelFile,
+  onDeleteFile,
   className,
 }: {
-  files: FileDetailPanelFile[];
+  files: UploadFile[];
   initialSelectedId?: string;
-  details: Record<string, DetailSeed>;
+  /** Keyed by file ID, for files with `status: "success"`. */
+  attributeDetails: Record<string, AttributeDetailSeed>;
   onSelectFile?: (id: string) => void;
-  onDeleteSelectedFile?: () => void;
+  onCancelFile?: (id: string) => void;
+  onDeleteFile?: (id: string) => void;
   className?: string;
 }) {
   const [selectedId, setSelectedId] = React.useState(initialSelectedId);
-  const [detailState, setDetailState] = React.useState(details);
+  const [detailState, setDetailState] = React.useState(attributeDetails);
 
-  let selectedFileDetail: SelectedFileDetail | undefined;
+  let content: React.ReactNode = null;
   if (selectedId) {
     const id = selectedId;
-    const seed = detailState[id];
-    selectedFileDetail =
-      seed?.type === "success"
-        ? {
-            ...seed,
-            onEntityLabelChange: (value) =>
-              setDetailState((prev) =>
-                updateSuccessDetail(prev, id, { entityLabel: value })
-              ),
-            onSelectedAttributesChange: (selected) =>
-              setDetailState((prev) =>
-                updateSuccessDetail(prev, id, { selectedAttributes: selected })
-              ),
-            onAttributeLabelChange: (rowId, label) =>
-              setDetailState((prev) => {
-                const current = prev[id];
-                if (current?.type !== "success") return prev;
-                return updateSuccessDetail(prev, id, {
-                  rows: current.rows.map((row) =>
-                    row.id === rowId ? { ...row, label } : row
-                  ),
-                });
-              }),
+    const detail = detailState[id];
+    if (detail) {
+      content = (
+        <AttributeTableDetail
+          key={id}
+          entityLabel={detail.entityLabel}
+          onEntityLabelChange={(value) =>
+            setDetailState((prev) => ({
+              ...prev,
+              [id]: { ...prev[id], entityLabel: value },
+            }))
           }
-        : seed;
+          rows={detail.rows}
+          selectedAttributes={detail.selectedAttributes}
+          onSelectedAttributesChange={(selected) =>
+            setDetailState((prev) => ({
+              ...prev,
+              [id]: { ...prev[id], selectedAttributes: selected },
+            }))
+          }
+          onAttributeLabelChange={(rowId, label) =>
+            setDetailState((prev) => ({
+              ...prev,
+              [id]: {
+                ...prev[id],
+                rows: prev[id].rows.map((row) =>
+                  row.id === rowId ? { ...row, label } : row
+                ),
+              },
+            }))
+          }
+        />
+      );
+    }
   }
 
   return (
@@ -147,9 +164,11 @@ function ControlledFileDetailPanel({
         setSelectedId(id);
         onSelectFile?.(id);
       }}
-      selectedFileDetail={selectedFileDetail}
-      onDeleteSelectedFile={onDeleteSelectedFile}
-    />
+      onCancelFile={onCancelFile}
+      onDeleteFile={onDeleteFile}
+    >
+      {content}
+    </FileDetailPanel>
   );
 }
 
@@ -162,58 +181,66 @@ function ControlledFileDetailPanel({
 function FrozenFileDetailPanel({
   files,
   selectedFileId,
-  detail,
-  onDeleteSelectedFile,
+  attributeDetail,
+  onCancelFile,
+  onDeleteFile,
   className,
 }: {
-  files: FileDetailPanelFile[];
+  files: UploadFile[];
   selectedFileId: string;
-  detail: Extract<DetailSeed, { type: "success" }>;
-  onDeleteSelectedFile?: () => void;
+  attributeDetail: AttributeDetailSeed;
+  onCancelFile?: (id: string) => void;
+  onDeleteFile?: (id: string) => void;
   className?: string;
 }) {
-  const [detailState, setDetailState] = React.useState(detail);
+  const [detail, setDetail] = React.useState(attributeDetail);
 
   return (
     <FileDetailPanel
       className={className}
       files={files}
       selectedFileId={selectedFileId}
-      selectedFileDetail={{
-        ...detailState,
-        onEntityLabelChange: (value) =>
-          setDetailState((prev) => ({ ...prev, entityLabel: value })),
-        onSelectedAttributesChange: (selected) =>
-          setDetailState((prev) => ({ ...prev, selectedAttributes: selected })),
-        onAttributeLabelChange: (rowId, label) =>
-          setDetailState((prev) => ({
+      onCancelFile={onCancelFile}
+      onDeleteFile={onDeleteFile}
+    >
+      <AttributeTableDetail
+        key={selectedFileId}
+        entityLabel={detail.entityLabel}
+        onEntityLabelChange={(value) =>
+          setDetail((prev) => ({ ...prev, entityLabel: value }))
+        }
+        rows={detail.rows}
+        selectedAttributes={detail.selectedAttributes}
+        onSelectedAttributesChange={(selected) =>
+          setDetail((prev) => ({ ...prev, selectedAttributes: selected }))
+        }
+        onAttributeLabelChange={(rowId, label) =>
+          setDetail((prev) => ({
             ...prev,
             rows: prev.rows.map((row) =>
               row.id === rowId ? { ...row, label } : row
             ),
-          })),
-      }}
-      onDeleteSelectedFile={onDeleteSelectedFile}
-    />
+          }))
+        }
+      />
+    </FileDetailPanel>
   );
 }
 
 /**
- * Combines `FileSelectionItem`, `AttributeTable`, and `FileErrorAlert` into
- * the full file-review pane of the upload wizard: a file list on the left,
- * and a detail pane on the right whose content matches the selected file's
- * status. Fully controlled — the detail pane's content is driven entirely by
- * `selectedFileDetail`, not inferred from `files`.
+ * The file-review pane of an upload wizard: a file list on the left, and a
+ * detail pane on the right. Loading, error, and no-selection states are
+ * handled by the panel itself; the success state is left to `children`, so
+ * different parts of the app can show different detail UIs for a
+ * successfully processed file. This story demonstrates that slot with
+ * `AttributeTable` — see the "Composing the success state" doc section
+ * below for the contract `children` needs to follow.
  */
 const meta: Meta<typeof FileDetailPanel> = {
   title: "ui/file-upload/FileDetailPanel",
   component: FileDetailPanel,
-  tags: ["autodocs"],
   parameters: {
     layout: "padded",
-    docs: {
-      page: DocsPage,
-    },
   },
 } satisfies Meta<typeof FileDetailPanel>;
 
@@ -247,6 +274,15 @@ export const PrimaryExample: Story = {
             filename: "orders.csv",
             status: "error",
             fileType: "Related",
+            error: {
+              message:
+                "Could not parse this file. Please check that it is a valid CSV with a header row, then re-upload.",
+              details: `The following rows failed validation:
+
+- Row 3: missing \`customer_id\`
+- Row 7: \`amount\` is not a number
+- Row 12: duplicate \`order_id\``,
+            },
           },
           {
             id: "3",
@@ -256,25 +292,15 @@ export const PrimaryExample: Story = {
           },
         ]}
         initialSelectedId="1"
-        details={{
+        attributeDetails={{
           "1": {
-            type: "success",
             entityLabel: "Customer",
             rows: attributeRows,
             selectedAttributes: new Set(),
           },
-          "2": {
-            type: "error",
-            message:
-              "Could not parse this file. Please check that it is a valid CSV with a header row, then re-upload.",
-            details: `The following rows failed validation:
-
-- Row 3: missing \`customer_id\`
-- Row 7: \`amount\` is not a number
-- Row 12: duplicate \`order_id\``,
-          },
         }}
-        onDeleteSelectedFile={fn()}
+        onCancelFile={fn()}
+        onDeleteFile={fn()}
       />
     </div>
   ),
@@ -290,18 +316,14 @@ export const PrimaryExample: Story = {
     await userEvent.type(labelInput, "Customer Record");
     await waitFor(() => expect(labelInput).toHaveValue("Customer Record"));
 
-    const ordersRow = canvas.getByRole("button", { name: /orders\.csv/i });
-    await userEvent.click(ordersRow);
+    await userEvent.click(canvas.getByText("orders.csv"));
     await waitFor(() => {
       expect(
         canvas.getByText("Could not parse this file.", { exact: false })
       ).toBeVisible();
     });
 
-    const customersRow = canvas.getByRole("button", {
-      name: /customers\.csv/i,
-    });
-    await userEvent.click(customersRow);
+    await userEvent.click(canvas.getByText("customers.csv"));
     await waitFor(() =>
       expect(canvas.getByLabelText("Entity Label")).toBeVisible()
     );
@@ -309,10 +331,11 @@ export const PrimaryExample: Story = {
 };
 
 /**
- * A successfully parsed file shows its generated entity label and detected
- * attributes, editable inline via `AttributeTable`. "Delete" removes the
- * whole file, not just the current selection. The file list is frozen — see
- * "Primary Example" atop the Docs page for the click-to-select interaction.
+ * A successfully parsed file shows whatever detail content the consumer
+ * passes as `children` — here, an editable entity label and detected
+ * attributes via `AttributeTable`. "Delete" removes the whole file, not
+ * just the current selection. The file list is frozen — see "Primary
+ * Example" atop the Docs page for the click-to-select interaction.
  */
 export const ValidFile: Story = {
   decorators: [
@@ -337,6 +360,10 @@ export const ValidFile: Story = {
           filename: "orders.csv",
           status: "error",
           fileType: "Related",
+          error: {
+            message:
+              "Could not parse this file. Please check that it is a valid CSV with a header row, then re-upload.",
+          },
         },
         {
           id: "3",
@@ -346,13 +373,13 @@ export const ValidFile: Story = {
         },
       ]}
       selectedFileId="1"
-      detail={{
-        type: "success",
+      attributeDetail={{
         entityLabel: "Customer",
         rows: attributeRows,
         selectedAttributes: new Set(),
       }}
-      onDeleteSelectedFile={fn()}
+      onCancelFile={fn()}
+      onDeleteFile={fn()}
     />
   ),
   play: async ({ canvas }) => {
@@ -403,6 +430,7 @@ export const NoLoadedFile: Story = {
         fileType: "Related",
       },
     ],
+    onCancelFile: fn(),
   },
 };
 
@@ -441,12 +469,14 @@ export const NoSelection: Story = {
         fileType: "Related",
       },
     ],
+    onCancelFile: fn(),
   },
 };
 
 /**
  * A file that failed to parse shows a destructive alert with a collapsible
- * "Details" section for the underlying validation errors.
+ * "Details" section for the underlying validation errors. Fully derived from
+ * the selected file's own `error` field — no `children` involved.
  */
 export const ParseErrorWithExpandableDetails: Story = {
   decorators: [
@@ -465,7 +495,21 @@ export const ParseErrorWithExpandableDetails: Story = {
         fileType: "Primary",
         rowCount: 23000,
       },
-      { id: "2", filename: "orders.csv", status: "error", fileType: "Related" },
+      {
+        id: "2",
+        filename: "orders.csv",
+        status: "error",
+        fileType: "Related",
+        error: {
+          message:
+            "Could not parse this file. Please check that it is a valid CSV with a header row, then re-upload.",
+          details: `The following rows failed validation:
+
+- Row 3: missing \`customer_id\`
+- Row 7: \`amount\` is not a number
+- Row 12: duplicate \`order_id\``,
+        },
+      },
       {
         id: "3",
         filename: "regions.csv",
@@ -475,17 +519,7 @@ export const ParseErrorWithExpandableDetails: Story = {
       },
     ],
     selectedFileId: "2",
-    selectedFileDetail: {
-      type: "error",
-      message:
-        "Could not parse this file. Please check that it is a valid CSV with a header row, then re-upload.",
-      details: `The following rows failed validation:
-
-- Row 3: missing \`customer_id\`
-- Row 7: \`amount\` is not a number
-- Row 12: duplicate \`order_id\``,
-    },
-    onDeleteSelectedFile: fn(),
+    onDeleteFile: fn(),
   },
   play: async ({ canvas }) => {
     const trigger = canvas.getByRole("button", { name: "Details" });
@@ -532,6 +566,10 @@ export const ResponsiveBehavior: Story = {
                   filename: "orders.csv",
                   status: "error",
                   fileType: "Related",
+                  error: {
+                    message:
+                      "Could not parse this file. Please check that it is a valid CSV with a header row, then re-upload.",
+                  },
                 },
                 {
                   id: "3",
@@ -541,13 +579,13 @@ export const ResponsiveBehavior: Story = {
                 },
               ]}
               selectedFileId="1"
-              detail={{
-                type: "success",
+              attributeDetail={{
                 entityLabel: "Customer",
                 rows: attributeRows,
                 selectedAttributes: new Set(),
               }}
-              onDeleteSelectedFile={fn()}
+              onCancelFile={fn()}
+              onDeleteFile={fn()}
             />
           </div>
         </div>
