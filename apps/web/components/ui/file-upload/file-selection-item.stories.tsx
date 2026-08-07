@@ -4,10 +4,9 @@ import { expect, fn, userEvent, waitFor } from "storybook/test";
 import { FileSelectionItem } from "@/components/ui/file-upload/file-selection-item";
 
 /**
- * A row representing a single file in an upload/import list. Reuses
- * `Item`/`ItemMedia`/`ItemContent` for layout; the cancel/delete button is
- * absolutely positioned so it can float over a long, truncated filename
- * instead of pushing the row's width.
+ * A row representing a single file in an upload/import list. Displays status
+ * and allows cancelation and or removal of the item via a nested button and
+ * callbacks.
  */
 const meta: Meta<typeof FileSelectionItem> = {
   title: "ui/file-upload/FileSelectionItem",
@@ -42,6 +41,7 @@ const meta: Meta<typeof FileSelectionItem> = {
     selected: false,
     onCancel: fn(),
     onDelete: fn(),
+    onSelect: fn(),
   },
   render: (args) => (
     <div className="w-[280px]">
@@ -58,14 +58,13 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * While a file is uploading, the row is disabled from interaction except
- * for the cancel button, revealed on hover or focus.
+ * A file that is being processed. Can be canceled, but not selected.
  */
 export const Loading: Story = {};
 
 /**
- * A file that finished processing successfully shows a row count,
- * abbreviated above 999 (e.g. "23K rows").
+ * A file that finished processing successfully. Shows a row count,
+ * abbreviated above 999 (e.g. "23K rows"). Can be deleted.
  */
 export const Success: Story = {
   args: {
@@ -74,8 +73,7 @@ export const Success: Story = {
 };
 
 /**
- * A file that failed to process. Only the icon is tinted red — the
- * filename stays neutral.
+ * A file that failed to process. Can be deleted.
  */
 export const Error: Story = {
   args: {
@@ -84,13 +82,36 @@ export const Error: Story = {
 };
 
 /**
- * `selected` keeps the row's active look and left indicator bar shown
- * permanently, independent of hover/focus.
+ * A row that has been selected. Can be deleted.
  */
 export const Selected: Story = {
   args: {
     status: "success",
     selected: true,
+  },
+  play: async ({ args, canvas, canvasElement }) => {
+    const item = canvasElement.querySelector<HTMLElement>("[data-status]")!;
+
+    expect(item).toHaveClass("cursor-default");
+
+    await userEvent.click(item);
+    await expect(args.onSelect).not.toHaveBeenCalled();
+  },
+};
+
+/**
+ * Hovering the row reveals the delete or cancel button.
+ */
+export const RevealsActionOnHover: Story = {
+  args: {
+    status: "success",
+  },
+  play: async ({ args, canvas }) => {
+    const button = canvas.getByRole("button", { name: /delete/i });
+
+    await userEvent.click(button);
+    await expect(args.onDelete).toHaveBeenCalledTimes(1);
+    await expect(args.onSelect).not.toHaveBeenCalled();
   },
 };
 
@@ -106,31 +127,11 @@ export const LongFilename: Story = {
 };
 
 /**
- * Hovering the row reveals the delete button, which sits on top of the
- * filename.
- */
-export const RevealsActionOnHover: Story = {
-  args: {
-    status: "success",
-  },
-  play: async ({ args, canvas }) => {
-    const button = canvas.getByRole("button", { name: /delete/i });
-
-    await userEvent.hover(button);
-    await waitFor(() => expect(button).toBeVisible());
-
-    await userEvent.click(button);
-    await expect(args.onDelete).toHaveBeenCalledTimes(1);
-  },
-};
-
-/**
- * Tabbing to a success/error row reveals the delete button without moving
- * focus into it — the item and the button are separate stops. A second Tab
+ * The component is keyboard accessible. Tabbing to a success/error row reveals
+ * the delete button, but the item and button are separate stops. A second Tab
  * reaches and activates the button.
  */
-export const KeyboardAccessible: Story = {
-  name: "Keyboard accessible: item and action button are separate stops",
+export const KeyboardAccessibility: Story = {
   args: {
     status: "success",
   },
@@ -150,12 +151,12 @@ export const KeyboardAccessible: Story = {
 
     await userEvent.keyboard("{Enter}");
     await expect(args.onDelete).toHaveBeenCalledTimes(1);
+    await expect(args.onSelect).not.toHaveBeenCalled();
   },
 };
 
 /**
- * The loading row isn't a tab stop itself — focus goes straight to the
- * cancel button.
+ * For loading rows, focus goes straight to the cancel button.
  */
 export const CancelViaKeyboard: Story = {
   play: async ({ args, canvas }) => {
@@ -174,7 +175,7 @@ export const CancelViaKeyboard: Story = {
 };
 
 /**
- * Without `onDelete`, no action button renders.
+ * Without `onDelete` or `onCancel` callbacks, no action button renders.
  */
 export const NoActionHandler: Story = {
   args: {

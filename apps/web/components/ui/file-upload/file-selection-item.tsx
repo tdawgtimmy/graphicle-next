@@ -26,6 +26,13 @@ type FileSelectionItemProps = Omit<React.ComponentProps<"div">, "children"> & {
   onCancel?: () => void
   /** Shows a delete button once `status` is "success" or "error". */
   onDelete?: () => void
+  /**
+   * Called when the item itself is activated — click, or Enter while it has
+   * focus. Never called for `status` "loading", and never called by
+   * clicking the cancel/delete button. Enables the row's own cursor and
+   * keyboard handling; omit it to render a non-selectable row.
+   */
+  onSelect?: () => void
 }
 
 function formatRowCount(count: number) {
@@ -45,9 +52,14 @@ function FileSelectionItem({
   selected = false,
   onCancel,
   onDelete,
+  onSelect,
   ...props
 }: FileSelectionItemProps) {
-  const isSelected = selected && status !== "loading"
+  const isInteractive = status !== "loading"
+  const isSelected = selected && isInteractive
+  const hasSelectHandler = Boolean(onSelect)
+  // Already-selected items have nothing left for a click/Enter to do.
+  const canSelect = isInteractive && hasSelectHandler && !isSelected
 
   const action =
     status === "loading"
@@ -63,14 +75,35 @@ function FileSelectionItem({
       // Loading is non-interactive, so it's skipped in the tab order and
       // focus goes straight to the cancel button. Otherwise the item is its
       // own stop — focus reveals the delete button without moving into it.
-      tabIndex={status === "loading" ? undefined : 0}
+      tabIndex={isInteractive ? 0 : undefined}
+      aria-current={isSelected ? "true" : undefined}
       data-status={status}
       data-selected={isSelected || undefined}
       variant="default"
+      onClick={canSelect ? onSelect : undefined}
+      onKeyDown={
+        canSelect
+          ? (event) => {
+              // Ignore keydowns bubbling up from the nested delete/cancel
+              // button — only a key on the item itself selects it.
+              if (event.target !== event.currentTarget) return
+              if (event.key === "Enter") {
+                event.preventDefault()
+                onSelect?.()
+              }
+            }
+          : undefined
+      }
       className={cn(
         "group/file-item relative gap-4 rounded-lg border-transparent px-4 py-2 outline-none transition-colors",
-        status !== "loading" &&
+        isInteractive &&
           "hover:bg-secondary focus-visible:border-transparent focus-within:bg-secondary focus-within:ring-2 focus-within:ring-ring/30",
+        hasSelectHandler &&
+          (!isInteractive
+            ? "cursor-not-allowed"
+            : isSelected
+              ? "cursor-default"
+              : "cursor-pointer"),
         isSelected && "rounded-l-none bg-secondary",
         className
       )}
@@ -136,7 +169,11 @@ function FileSelectionItem({
             variant="outline"
             size="icon-sm"
             destructive
-            onClick={action.onClick}
+            onClick={(event) => {
+              // Don't let this bubble into the item's own onClick/onSelect.
+              event.stopPropagation()
+              action.onClick()
+            }}
             aria-label={action.label}
             className={cn(
               "rounded-sm opacity-0 shadow-sm transition-opacity",
