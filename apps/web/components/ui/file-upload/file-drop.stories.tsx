@@ -3,7 +3,10 @@ import { expect, fireEvent, fn, userEvent, waitFor } from "storybook/test";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
 import { Field, FieldError } from "@/components/ui/field";
-import { FileDrop, FileDropDescription } from "@/components/ui/file-drop";
+import {
+  FileDrop,
+  FileDropDescription,
+} from "@/components/ui/file-upload/file-drop";
 
 /**
  * A drop zone for uploading files by clicking to open the file picker or by
@@ -12,7 +15,7 @@ import { FileDrop, FileDropDescription } from "@/components/ui/file-drop";
  * reader interactions all work without extra wiring.
  */
 const meta: Meta<typeof FileDrop> = {
-  title: "ui/base/FileDrop",
+  title: "ui/file-upload/FileDrop",
   component: FileDrop,
   tags: ["autodocs"],
   argTypes: {

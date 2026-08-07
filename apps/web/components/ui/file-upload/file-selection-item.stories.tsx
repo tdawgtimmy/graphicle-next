@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect, fn, userEvent, waitFor } from "storybook/test";
 
-import { FileSelectionItem } from "@/components/ui/file-selection-item";
+import { FileSelectionItem } from "@/components/ui/file-upload/file-selection-item";
 
 /**
  * A row representing a single file in an upload/import list. Reuses
@@ -10,7 +10,7 @@ import { FileSelectionItem } from "@/components/ui/file-selection-item";
  * instead of pushing the row's width.
  */
 const meta: Meta<typeof FileSelectionItem> = {
-  title: "ui/base/FileSelectionItem",
+  title: "ui/file-upload/FileSelectionItem",
   component: FileSelectionItem,
   tags: ["autodocs"],
   argTypes: {
