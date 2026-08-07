@@ -15,9 +15,11 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
         ghost:
           "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
-        destructive:
-          "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
         link: "text-primary underline-offset-4 hover:underline",
+      },
+      destructive: {
+        true: "",
+        false: "",
       },
       size: {
         default:
@@ -31,9 +33,39 @@ const buttonVariants = cva(
         "icon-lg": "size-8 [&_svg:not([class*='size-'])]:size-4",
       },
     },
+    compoundVariants: [
+      {
+        variant: "default",
+        destructive: true,
+        className:
+          "bg-destructive text-white hover:bg-destructive focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",
+      },
+      // Secondary/Outline/Ghost + Destructive stay visually identical to
+      // their non-destructive form at rest; the red only appears on
+      // hover/active/focus
+      {
+        variant: "secondary",
+        destructive: true,
+        className:
+          "hover:bg-destructive hover:text-white focus-visible:border-destructive/40 focus-visible:bg-destructive focus-visible:text-white focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",
+      },
+      {
+        variant: "outline",
+        destructive: true,
+        className:
+          "hover:border-[color-mix(in_oklch,var(--destructive),white_15%)] hover:bg-destructive hover:text-white focus-visible:border-[color-mix(in_oklch,var(--destructive),white_15%)] focus-visible:bg-destructive focus-visible:text-white focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",
+      },
+      {
+        variant: "ghost",
+        destructive: true,
+        className:
+          "hover:bg-destructive hover:text-white focus-visible:border-destructive/40 focus-visible:bg-destructive focus-visible:text-white focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",
+      },
+    ],
     defaultVariants: {
       variant: "default",
       size: "default",
+      destructive: false,
     },
   }
 )
@@ -42,12 +74,13 @@ function Button({
   className,
   variant = "default",
   size = "default",
+  destructive = false,
   ...props
 }: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
   return (
     <ButtonPrimitive
       data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={cn(buttonVariants({ variant, size, destructive, className }))}
       {...props}
     />
   )

@@ -13,14 +13,13 @@ const meta: Meta<typeof Button> = {
   argTypes: {
     variant: {
       control: "select",
-      options: [
-        "default",
-        "destructive",
-        "outline",
-        "secondary",
-        "ghost",
-        "link",
-      ],
+      options: ["default", "outline", "secondary", "ghost", "link"],
+    },
+    destructive: {
+      control: "boolean",
+      description:
+        "Applies the destructive treatment on top of the selected variant. Not supported on `link`.",
+      if: { arg: "variant", neq: "link" },
     },
     size: {
       control: "select",
@@ -49,6 +48,7 @@ const meta: Meta<typeof Button> = {
   args: {
     variant: "default",
     size: "default",
+    destructive: false,
     children: "Button",
     disabled: false,
   },
@@ -60,12 +60,16 @@ type Story = StoryObj<typeof meta>;
 
 /**
  * The default form of the button, used for primary actions and commands.
+ * Toggle `destructive` to indicate an irreversible or high-consequence
+ * primary action, such as permanently deleting a resource.
  */
 export const Default: Story = {};
 
 /**
  * Use the `outline` button to reduce emphasis on secondary actions, such as
- * canceling or dismissing a dialog.
+ * canceling or dismissing a dialog. Toggle `destructive` for a
+ * lower-emphasis destructive action — the button reads as neutral at rest
+ * and only turns red on hover, active, and focus.
  */
 export const Outline: Story = {
   args: {
@@ -75,7 +79,9 @@ export const Outline: Story = {
 
 /**
  * Use the `ghost` button is minimalistic and subtle, for less intrusive
- * actions.
+ * actions. Toggle `destructive` for a low-emphasis destructive action — the
+ * button reads as neutral at rest and only turns red on hover, active, and
+ * focus.
  */
 export const Ghost: Story = {
   args: {
@@ -85,21 +91,13 @@ export const Ghost: Story = {
 
 /**
  * Use the `secondary` button to call for less emphasized actions, styled to
- * complement the primary button while being less conspicuous.
+ * complement the primary button while being less conspicuous. Toggle
+ * `destructive` for a lower-emphasis destructive action — the button reads
+ * as neutral at rest and only turns red on hover, active, and focus.
  */
 export const Secondary: Story = {
   args: {
     variant: "secondary",
-  },
-};
-
-/**
- * Use the `destructive` button to indicate errors, alerts, or the need for
- * immediate attention.
- */
-export const Destructive: Story = {
-  args: {
-    variant: "destructive",
   },
 };
 

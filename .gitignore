@@ -53,3 +53,6 @@ __pycache__/
 # intermediate openapi dump; the generated api.d.ts IS committed so the web app
 # builds and typechecks without a Python toolchain (CI checks it is current)
 apps/api/openapi.json
+
+# scratchpad notes
+notes/scratchpad
