@@ -37,12 +37,10 @@ const measurements: Measurement[] = (() => {
 })();
 
 /**
- * A slider with an embedded distribution histogram — a scented widget per
- * Heer et al. The muted "shadow" layer shows the whole dataset and never
- * moves; the primary layer shows how much of each bin the current selection
- * keeps, so partially-selected bins read as partially filled.
- *
- * See `notes/specs/scented-slider.md`.
+ * A slider with an embedded distribution histogram. The muted "shadow" layer
+ * shows the whole dataset and never moves; the primary layer shows how much of
+ * each bin the current selection keeps, so partially-selected bins read as
+ * partially filled.
  */
 const meta: Meta<typeof ScentedSlider<Measurement>> = {
   title: "ui/scented/ScentedSlider",

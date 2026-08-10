@@ -45,10 +45,9 @@ interface ScentedSliderProps<Item> extends Omit<
   /** Render value labels only while hovered/focused. @default false */
   showValuesOnHover?: boolean;
   /**
-   * For a single-thumb slider, treat `[min, value]` as selected instead of
-   * `[value, max]`. Independent of `dir`/RTL, which controls layout
-   * direction only — this controls which side reads as "filtered in".
-   * No effect in range (two-thumb) mode.
+   * For a single-thumb slider, this controls which side reads as "filtered in",
+   * treating `[min, value]` as selected instead of `[value, max]`. No effect in
+   * range (two-thumb) mode.
    * @default false
    */
   invert?: boolean;

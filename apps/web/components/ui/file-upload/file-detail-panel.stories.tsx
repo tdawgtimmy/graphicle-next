@@ -485,11 +485,7 @@ export const ParseErrorWithExpandableDetails: Story = {
 };
 
 /**
- * Renders the same valid-file data at three widths — 640px, the narrowest
- * `FileDetailPanel` supports, up through 960px — to show that the 12-column
- * layout (4 columns for the file list, 8 for the detail pane) scales
- * proportionally with its container rather than relying on fixed pixel
- * widths.
+ * The minimim width `FileDetailPanel` supports is 640px, and is responsive.
  */
 export const ResponsiveBehavior: Story = {
   render: () => (

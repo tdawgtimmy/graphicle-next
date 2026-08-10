@@ -19,9 +19,7 @@ const produce: Produce[] = [
 ];
 
 /**
- * A select where each item shows an embedded "scent" bar scaled to a count,
- * per Heer et al.'s scented widgets. See `notes/scented-combobox.md` for the
- * design decisions behind this pattern (shared with `ScentedCombobox`).
+ * A select where each item shows an embedded "scent" bar scaled to a count.
  */
 const meta: Meta<typeof ScentedSelect<Produce>> = {
   title: "ui/scented/ScentedSelect",

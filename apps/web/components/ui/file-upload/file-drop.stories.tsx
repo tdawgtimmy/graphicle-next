@@ -10,7 +10,7 @@ import {
 
 /**
  * A drop zone for uploading files by clicking to open the file picker or by
- * dragging files onto it. Accessible by default: it renders a native
+ * dragging files onto it. It is accessible by default: it renders a native
  * `<input type="file">` under the hood, so click, keyboard, and screen
  * reader interactions all work without extra wiring.
  */

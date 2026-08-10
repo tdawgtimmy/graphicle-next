@@ -20,8 +20,7 @@ const produce: Produce[] = [
 
 /**
  * A combobox where each item shows an embedded "scent" bar scaled to a
- * count, per Heer et al.'s scented widgets. See `notes/scented-combobox.md`
- * for the design decisions behind this component.
+ * count.
  */
 const meta: Meta<typeof ScentedCombobox<Produce>> = {
   title: "ui/scented/ScentedCombobox",
