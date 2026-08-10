@@ -228,5 +228,5 @@ function FileDropDescription({
   );
 }
 
-export { FileDrop, FileDropDescription };
+export { FileDrop, FileDropDescription, formatBytes, isFileAccepted };
 export type { FileRejection };

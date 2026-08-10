@@ -2,13 +2,13 @@ import * as React from "react";
 import { expect, fn, userEvent, waitFor } from "storybook/test";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
+import type { AttributeRow } from "@/components/ui/file-upload/attribute-table";
 import {
-  AttributeTable,
-  type AttributeRow,
-} from "@/components/ui/file-upload/attribute-table";
+  AttributeTableDetail,
+  type AttributeDetailSeed,
+} from "@/components/ui/file-upload/attribute-table-detail";
 import { FileDetailPanel } from "@/components/ui/file-upload/file-detail-panel";
 import type { UploadFile } from "@/components/ui/file-upload/types";
-import { Input } from "@/components/ui/input";
 
 /**
  * Disables click, hover, and focus-by-click on `FileDetailPanel`'s file list
@@ -37,58 +37,6 @@ const attributeRows: AttributeRow[] = [
   },
   { id: "5", attribute: "quantity", label: "Quantity", sample: "12" },
 ];
-
-/**
- * An example consumer of `FileDetailPanel`'s `children` slot: an editable
- * entity label above the detected attributes. A real consumer composes
- * whatever detail UI fits its own use case here — `FileDetailPanel` itself
- * has no knowledge of either piece.
- */
-function AttributeTableDetail({
-  entityLabel,
-  onEntityLabelChange,
-  rows,
-  selectedAttributes,
-  onSelectedAttributesChange,
-  onAttributeLabelChange,
-}: {
-  entityLabel: string;
-  onEntityLabelChange?: (value: string) => void;
-  rows: AttributeRow[];
-  selectedAttributes: Set<string>;
-  onSelectedAttributesChange: (selected: Set<string>) => void;
-  onAttributeLabelChange?: (id: string, label: string) => void;
-}) {
-  return (
-    <div className="flex min-h-0 flex-col gap-6">
-      <div className="flex w-full items-center gap-1">
-        <span className="w-30 shrink-0 text-sm/5 font-medium text-foreground">
-          Entity Label
-        </span>
-        <Input
-          value={entityLabel}
-          onChange={(event) => onEntityLabelChange?.(event.target.value)}
-          readOnly={!onEntityLabelChange}
-          className="h-8 flex-1"
-          aria-label="Entity Label"
-        />
-      </div>
-      <AttributeTable
-        className="min-h-0 w-full flex-1"
-        rows={rows}
-        selected={selectedAttributes}
-        onSelectedChange={onSelectedAttributesChange}
-        onLabelChange={onAttributeLabelChange}
-      />
-    </div>
-  );
-}
-
-type AttributeDetailSeed = {
-  entityLabel: string;
-  rows: AttributeRow[];
-  selectedAttributes: Set<string>;
-};
 
 /**
  * A stateful wrapper used by these stories. `FileDetailPanel` itself is

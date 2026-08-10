@@ -12,6 +12,7 @@
   },
   "devDependencies": {
     "@nx/next": "23.1.1",
+    "chromatic": "^18.1.0",
     "nx": "23.1.1",
     "openapi-typescript": "^7.13.0",
     "prettier": "^3.8.3",

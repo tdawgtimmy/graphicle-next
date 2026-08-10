@@ -97,7 +97,7 @@ function FileSelectionItem({
       className={cn(
         "group/file-item relative gap-4 rounded-lg border-transparent px-4 py-2 transition-colors outline-none",
         isInteractive &&
-          "focus-within:bg-secondary focus-within:ring-2 focus-within:ring-ring/30 hover:bg-secondary focus-visible:border-transparent",
+          "hover:bg-secondary focus-visible:border-transparent focus-visible:bg-secondary focus-visible:ring-2 focus-visible:ring-ring/30",
         hasSelectHandler &&
           (!isInteractive
             ? "cursor-not-allowed"
