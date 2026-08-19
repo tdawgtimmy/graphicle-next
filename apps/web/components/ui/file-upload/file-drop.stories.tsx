@@ -9,10 +9,9 @@ import {
 } from "@/components/ui/file-upload/file-drop";
 
 /**
- * A drop zone for uploading files by clicking to open the file picker or by
- * dragging files onto it. It is accessible by default: it renders a native
- * `<input type="file">` under the hood, so click, keyboard, and screen
- * reader interactions all work without extra wiring.
+ * A drop zone. Click to open the file picker or drag files onto it. It renders
+ * a native `<input type="file">` underneath, so keyboard and screen reader
+ * access come for free.
  */
 const meta: Meta<typeof FileDrop> = {
   title: "ui/file-upload/FileDrop",

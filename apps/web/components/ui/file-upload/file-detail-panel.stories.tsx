@@ -38,11 +38,7 @@ const attributeRows: AttributeRow[] = [
   { id: "5", attribute: "quantity", label: "Quantity", sample: "12" },
 ];
 
-/**
- * A stateful wrapper used by these stories. `FileDetailPanel` itself is
- * fully controlled — a real consumer would lift this same state up to
- * wherever the upload wizard step tracks its files.
- */
+/** Story-local state. FileDetailPanel is fully controlled. */
 function ControlledFileDetailPanel({
   files,
   initialSelectedId,
@@ -176,13 +172,11 @@ function FrozenFileDetailPanel({
 }
 
 /**
- * The file-review pane of an upload wizard: a file list on the left, and a
- * detail pane on the right. Loading, error, and no-selection states are
- * handled by the panel itself; the success state is left to `children`, so
- * different parts of the app can show different detail UIs for a
- * successfully processed file. This story demonstrates that slot with
- * `AttributeTable` — see the "Composing the success state" doc section
- * below for the contract `children` needs to follow.
+ * The file-review pane of an upload wizard. The panel handles loading, error,
+ * and no-selection states. You are responsible for what is rendered via
+ * `children` when the user selects a successfully loaded file. This story fills
+ * that slot with `AttributeTable`. See "Composing the success state" below for
+ * what `children` has to do.
  */
 const meta: Meta<typeof FileDetailPanel> = {
   title: "ui/file-upload/FileDetailPanel",
@@ -197,12 +191,10 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * Powers the interactive canvas at the top of the Docs page only — hidden
- * from the sidebar (`!dev`) so it isn't browsable as its own story. Clicking
- * `customers.csv` or `orders.csv` in the file list switches the detail pane
- * between the success and error views; the other stories below keep their
- * file list frozen (see `FROZEN_LIST_CLASS`) and demonstrate this same
- * interaction just once, here.
+ * Powers the canvas at the top of the Docs page. Hidden from the sidebar with
+ * `!dev`. Click `customers.csv` or `orders.csv` to switch the detail pane
+ * between the success and error views. The stories below freeze their file
+ * lists, so this is the only one where selection works.
  */
 export const PrimaryExample: Story = {
   tags: ["!dev"],
@@ -279,11 +271,9 @@ export const PrimaryExample: Story = {
 };
 
 /**
- * A successfully parsed file shows whatever detail content the consumer
- * passes as `children` — here, an editable entity label and detected
- * attributes via `AttributeTable`. "Delete" removes the whole file, not
- * just the current selection. The file list is frozen — see "Primary
- * Example" atop the Docs page for the click-to-select interaction.
+ * A parsed file shows whatever you pass as `children`. Here an editable entity
+ * label and an `AttributeTable`. "Delete" removes the file, not just the
+ * selection. The list is frozen in this story.
  */
 export const ValidFile: Story = {
   decorators: [
@@ -383,9 +373,8 @@ export const NoLoadedFile: Story = {
 };
 
 /**
- * Once at least one file has finished processing, the detail pane invites
- * the user to pick one from the list. The file list here is static — see
- * the "Valid File" story above for the click-to-select interaction.
+ * Once at least one file has finished processing, the detail pane prompts for a
+ * selection. The list is frozen in this story.
  */
 export const NoSelection: Story = {
   decorators: [
@@ -423,8 +412,8 @@ export const NoSelection: Story = {
 
 /**
  * A file that failed to parse shows a destructive alert with a collapsible
- * "Details" section for the underlying validation errors. Fully derived from
- * the selected file's own `error` field — no `children` involved.
+ * "Details" section holding additional error text. It all comes from the file's
+ * `error` field.
  */
 export const ParseErrorWithExpandableDetails: Story = {
   decorators: [
@@ -485,7 +474,7 @@ export const ParseErrorWithExpandableDetails: Story = {
 };
 
 /**
- * The minimim width `FileDetailPanel` supports is 640px, and is responsive.
+ * `FileDetailPanel` is responsive down to 640px.
  */
 export const ResponsiveBehavior: Story = {
   render: () => (

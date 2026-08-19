@@ -40,12 +40,7 @@ const attributeRows: AttributeRow[] = [
   { id: "3", attribute: "region", label: "Region", sample: "West" },
 ];
 
-/**
- * A stateful wrapper used by these stories. `NodesStep` itself is fully
- * controlled — a real consumer (the import wizard's host page) would lift
- * this same state up to wherever it tracks upload progress and attribute
- * selection.
- */
+/** Story-local state. NodesStep is fully controlled — the host page owns this. */
 function ControlledNodesStep({
   primaryFile,
   relatedFiles,
@@ -106,11 +101,7 @@ function ControlledNodesStep({
   }
 
   return (
-    <ImportWizardShell
-      steps={steps}
-      currentStepId="nodes"
-      className="w-200"
-    >
+    <ImportWizardShell steps={steps} currentStepId="nodes" className="w-200">
       <NodesStep
         primaryFile={primaryFile}
         onPrimaryFileSelected={fn()}
@@ -130,13 +121,10 @@ function ControlledNodesStep({
 }
 
 /**
- * Step 1 of the node import wizard: upload a primary entity file and any
- * related entity files, then review and select attributes once at least one
- * file has been uploaded. The Validate section only appears once
- * `primaryFile` or `relatedFiles` is non-empty (progressive disclosure) —
- * see the Empty story below versus the others. Rendered inside
- * `ImportWizardShell` for a realistic frame, matching how the host page
- * composes it.
+ * Step 1 of the node import wizard. Upload a primary entity file and any
+ * related files, then review and select attributes. The Validate section stays
+ * hidden until `primaryFile` or `relatedFiles` is non-empty — compare the Empty
+ * story. Rendered inside `ImportWizardShell`, the way the host page composes it.
  */
 const meta: Meta<typeof NodesStep> = {
   title: "ui/import-wizard/NodesStep",
@@ -151,17 +139,12 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * No files uploaded yet: the Validate section is hidden, Next is disabled
- * (no primary file yet), and Back is disabled since `onBack` is omitted —
- * this is the first step of the wizard, with no previous step to return to.
+ * No files uploaded. The Validate section is hidden, Next is disabled without a
+ * primary file, and Back is disabled because there's no step before this one.
  */
 export const Empty: Story = {
   render: () => (
-    <ImportWizardShell
-      steps={steps}
-      currentStepId="nodes"
-      className="w-200"
-    >
+    <ImportWizardShell steps={steps} currentStepId="nodes" className="w-200">
       <NodesStep
         primaryFile={null}
         onPrimaryFileSelected={fn()}
@@ -179,9 +162,8 @@ export const Empty: Story = {
 };
 
 /**
- * Every uploaded file finished processing successfully, and nothing is
- * selected yet — the detail pane invites the user to pick one from the
- * list. Selecting `hospitals.csv` reveals its attribute table.
+ * Every file parsed, nothing selected yet. Select `hospitals.csv` to see its
+ * attribute table.
  */
 export const AllFilesValid: Story = {
   render: () => (
@@ -229,11 +211,9 @@ export const AllFilesValid: Story = {
 };
 
 /**
- * A mix of statuses: the primary file succeeded, one related file failed to
- * parse, and another succeeded — starting with the valid primary file
- * selected. Next stays enabled (nothing is still loading), so clicking it
- * surfaces the discard-errors confirmation — see "Confirm Discard Dialog
- * Open" below for that next state.
+ * A mix of statuses: the primary file and one related file parsed, one related
+ * file failed. Nothing is loading, so Next stays enabled. Click it and you get
+ * the discard-errors confirmation.
  */
 export const MixedStatusesWithError: Story = {
   render: () => (
@@ -299,10 +279,9 @@ export const MixedStatusesWithError: Story = {
 
 /**
  * Clicking Next while a file has `status: "error"` opens a confirmation
- * dialog before advancing, since continuing discards every errored file.
- * Confirming calls `onDeleteFile` once per errored file, then `onNext` —
- * consolidating removal logic in the same place the host page already
- * handles file deletion from the Validate section itself.
+ * first, since continuing discards it. Confirming calls `onDeleteFile` once per
+ * errored file, then `onNext` so the host page deletes files through the same
+ * callback it already users in the Validate section.
  */
 export const ConfirmDiscardDialogOpen: Story = {
   render: () => (

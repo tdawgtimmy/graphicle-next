@@ -16,11 +16,9 @@ const steps: ImportWizardStepInfo[] = [
 ];
 
 /**
- * The outer chrome shared by every step of the import wizard: a bordered
- * frame with the progress stepper on top, and whatever the active step
- * renders (form body + its own navigation buttons) below. `currentStepId`
- * drives which stepper item reads as complete/active/upcoming — the shell
- * itself has no notion of step order or navigation logic beyond that.
+ * The frame for every wizard step. Progress stepper on top, the active step's
+ * own body and buttons below. `currentStepId` sets which stepper items are
+ * complete, active, or upcoming. Step order and navigation live in the step.
  */
 const meta: Meta<typeof ImportWizardShell> = {
   title: "ui/import-wizard/ImportWizardShell",

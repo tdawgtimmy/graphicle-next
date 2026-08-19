@@ -45,11 +45,7 @@ const longAttributeRow: AttributeRow = {
   sample: "184920.55",
 };
 
-/**
- * A stateful wrapper used by these stories. `AttributeTable` itself is fully
- * controlled — a real consumer would lift this same state up to wherever the
- * upload wizard step tracks its data.
- */
+/** Story-local state. AttributeTable is fully controlled. */
 function ControlledAttributeTable({
   rows: initialRows,
   initialSelected,
@@ -152,10 +148,8 @@ export const IndeterminateHeaderCheckbox: Story = {
 
 /**
  * Long values in the Attribute and Sample columns are truncated with an
- * ellipsis instead of widening the column or wrapping the row. A tooltip is
- * shown immediately. The Label column behaves differently because it is an input. The existing
- * text field affordances (focus, select, scroll) already enable users to
- * examine any text overflow.
+ * ellipsis and get a tooltip on hover without delay. Label does not because
+ * it's an input. You can already focus it and scroll through the text.
  */
 export const LongLabelTruncation: Story = {
   render: () => (
@@ -176,8 +170,8 @@ export const Empty: Story = {
 };
 
 /**
- * The narrowest width `AttributeTable` supports is 400px. Columns resize
- * proportionally rather than breaking or requiring horizontal scroll.
+ * `AttributeTable` resizes down to 400px. Columns resize proportionally without
+ * horizontal scroll.
  */
 export const ResponsiveBehavior: Story = {
   render: () => (

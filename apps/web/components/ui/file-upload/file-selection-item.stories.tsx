@@ -4,9 +4,8 @@ import { expect, fn, userEvent, waitFor } from "storybook/test";
 import { FileSelectionItem } from "@/components/ui/file-upload/file-selection-item";
 
 /**
- * A row representing a single file in an upload/import list. Displays status
- * and allows cancelation and or removal of the item via a nested button and
- * callbacks.
+ * One file in an upload list. Shows its status, and takes `onCancel/onDelete`
+ * to render an action button.
  */
 const meta: Meta<typeof FileSelectionItem> = {
   title: "ui/file-upload/FileSelectionItem",
@@ -116,8 +115,7 @@ export const RevealsActionOnHover: Story = {
 };
 
 /**
- * Long filenames truncate with an ellipsis; the action button floats over
- * the text rather than reflowing the row.
+ * Long filenames truncate and the action button floats over the text.
  */
 export const LongFilename: Story = {
   args: {

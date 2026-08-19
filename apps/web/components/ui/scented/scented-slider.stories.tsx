@@ -37,10 +37,9 @@ const measurements: Measurement[] = (() => {
 })();
 
 /**
- * A slider with an embedded distribution histogram. The muted "shadow" layer
- * shows the whole dataset and never moves; the primary layer shows how much of
- * each bin the current selection keeps, so partially-selected bins read as
- * partially filled.
+ * A slider with a distribution histogram behind it. The muted layer is the
+ * entire dataset and does not change; the primary layer fills each bin in
+ * proportion to what the current selection includes.
  */
 const meta: Meta<typeof ScentedSlider<Measurement>> = {
   title: "ui/scented/ScentedSlider",
@@ -83,9 +82,8 @@ export const SingleThumb: Story = {
 };
 
 /**
- * `invert` flips which side of a single thumb counts as selected, to
- * `[value, max]` — the track fill flips with it, so the histogram and the
- * slider never disagree about what is selected.
+ * `invert` flips a single thumb's selection to `[value, max]`. The track fill
+ * and the histogram flip with it.
  */
 export const SingleThumbInverted: Story = {
   name: "single thumb, invert: true",

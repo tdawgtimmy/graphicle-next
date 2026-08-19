@@ -60,16 +60,15 @@ type Story = StoryObj<typeof meta>;
 
 /**
  * The default form of the button, used for primary actions and commands.
- * Toggle `destructive` to indicate an irreversible or high-consequence
- * primary action, such as permanently deleting a resource.
+ * Toggle `destructive for a lower-emphasis destructive action. The button
+ * stays neutral until hover, active, or focus.
  */
 export const Default: Story = {};
 
 /**
  * Use the `outline` button to reduce emphasis on secondary actions, such as
- * canceling or dismissing a dialog. Toggle `destructive` for a
- * lower-emphasis destructive action — the button reads as neutral at rest
- * and only turns red on hover, active, and focus.
+ * canceling or dismissing a dialog. Toggle `destructive for a lower-emphasis
+ * destructive action. The button stays neutral until hover, active, or focus.
  */
 export const Outline: Story = {
   args: {
@@ -79,9 +78,8 @@ export const Outline: Story = {
 
 /**
  * Use the `ghost` button is minimalistic and subtle, for less intrusive
- * actions. Toggle `destructive` for a low-emphasis destructive action — the
- * button reads as neutral at rest and only turns red on hover, active, and
- * focus.
+ * actions. Toggle `destructive for a lower-emphasis destructive action. The
+ * button stays neutral until hover, active, or focus.
  */
 export const Ghost: Story = {
   args: {
@@ -92,8 +90,8 @@ export const Ghost: Story = {
 /**
  * Use the `secondary` button to call for less emphasized actions, styled to
  * complement the primary button while being less conspicuous. Toggle
- * `destructive` for a lower-emphasis destructive action — the button reads
- * as neutral at rest and only turns red on hover, active, and focus.
+ * `destructive for a lower-emphasis destructive action. The button stays
+ * neutral until hover, active, or focus.
  */
 export const Secondary: Story = {
   args: {
